@@ -1,0 +1,152 @@
+/* DEFINICIÓN DE COLORES */
+:root {
+  --bg-predominante: #F8F9FA; /* Gris de fondo */
+  --input-bg: #FFFFFF;        /* Inputs blancos */
+  --primary-blue: #003366;    /* Azul UCE */
+  --action-red: #E63946;      /* Rojo UCE */
+  --text-dark: #212529;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* CONFIGURACIÓN GENERAL */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-predominante);
+  color: var(--text-dark);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.auth-container {
+  background-color: transparent; /* Sin carta, fondo transparente */
+  padding: 1rem;
+  width: 100%;
+  max-width: 450px;
+  text-align: center;
+}
+
+/* LOGO */
+.logo {
+  width: 200px;
+  height: auto;
+  margin-bottom: 2rem;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.welcome-text {
+  color: var(--primary-blue);
+  margin-bottom: 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* TABS TIPO CÁPSULA (PILL) */
+.tabs {
+  display: flex;
+  background-color: #fff;
+  padding: 5px;
+  border-radius: 10px; /* Redondo completo */
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  margin-bottom: 2rem;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--primary-blue);
+  border-radius: 8px; /* Botón interno redondo */
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.tab-btn.active {
+  background-color: var(--primary-blue);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* INPUTS Y SELECTS (ESTANDARIZADOS) */
+form {
+  text-align: left;
+}
+
+/* Contenedor de cada input */
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+label {
+  color: var(--text-dark);
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Aquí está el secreto para que no cambien de tamaño */
+input, select {
+  width: 100%;
+  padding: 14px; /* Tamaño fijo para todos */
+  background-color: var(--input-bg);
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: var(--text-dark);
+  box-sizing: border-box; /* IMPORTANTE: El padding no afecta el ancho */
+  transition: all 0.2s;
+  font-family: inherit;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.15);
+}
+
+/* Input con error */
+.input-error {
+  border-color: var(--action-red) !important;
+  background-color: #fff5f5;
+}
+
+/* BOTÓN DE ACCIÓN */
+.submit-btn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 15px;
+  background-color: var(--action-red);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  box-shadow: 0 4px 10px rgba(230, 57, 70, 0.2);
+}
+
+.submit-btn:hover {
+  background-color: #c92a37;
+}
+
+/* MENSAJES DE ERROR */
+.error-msg {
+  color: var(--action-red);
+  font-size: 0.85rem;
+  margin-top: 5px;
+  display: block;
+}
