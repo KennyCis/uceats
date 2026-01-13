@@ -5,10 +5,10 @@ export const register = async (req, res) => {
   const { name, email, password, role, birthdate, termsAccepted } = req.body;
 
   try {
-    // 1. Encriptar la contraseña (¡Seguridad primero!)
+    
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // 2. Crear el nuevo usuario con el modelo
+    
     const newUser = new User({
       name,
       email,
@@ -18,10 +18,10 @@ export const register = async (req, res) => {
       termsAccepted
     });
 
-    // 3. Guardar en MongoDB
+    
     const userSaved = await newUser.save();
 
-    // 4. Responder al frontend
+    
     res.json({
       id: userSaved._id,
       name: userSaved.name,
@@ -32,4 +32,50 @@ export const register = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+export const login = async (req, res) => {
+    
+    const { email, password, role } = req.body; 
+
+    console.log("Login try");
+    console.log(`Datos -> Email: ${email}, Rol: ${role}`);
+
+    try {
+        
+        const userFound = await User.findOne({ email });
+        
+        if (!userFound) {
+            console.log(" Error: User no search DB.");
+            return res.status(400).json({ message: "User not found" });
+        }
+        
+        console.log(`User search in BD -> Name: ${userFound.name}, Rol real: ${userFound.role}`);
+
+        
+        if (userFound.role !== role) {
+            console.log(` Error: Invalid Rol`);
+            return res.status(400).json({ message: `Role mismatch: User is ${userFound.role}, not ${role}` });
+        }
+
+        // 4. Verificamos la contraseña
+        const isMatch = await bcrypt.compare(password, userFound.password);
+        if (!isMatch) {
+            console.log(" Error: Invalid password");
+            return res.status(400).json({ message: "Invalid password" });
+        }
+
+        
+        console.log("Login .");
+        res.json({
+            id: userFound._id,
+            name: userFound.name,
+            email: userFound.email,
+            role: userFound.role
+        });
+
+    } catch (error) {
+        console.log(" Error of server:", error.message);
+        res.status(500).json({ message: error.message });
+    }
 };
