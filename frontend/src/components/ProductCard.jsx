@@ -1,68 +1,94 @@
-import { FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
+import { FiPlus, FiEdit, FiTrash2 } from "react-icons/fi";
 
-function ProductCard({ product, variant = "default" }) {
+// We added 'onDelete' and 'onEdit' props
+function ProductCard({ variant = "default", product, isAdmin = false, onDelete, onEdit }) {
   
-  
+  //VARIANT: ADD NEW PRODUCT
   if (variant === "add") {
     return (
       <div style={{
+        height: "100%",
+        minHeight: "280px",
         border: "2px dashed #CBD5E0",
         borderRadius: "20px",
-        minHeight: "260px",
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
         justifyContent: "center",
+        alignItems: "center",
         cursor: "pointer",
-        color: "var(--primary-blue)",
-        backgroundColor: "rgba(0, 78, 146, 0.03)"
+        color: "#718096",
+        backgroundColor: "#F7FAFC",
+        transition: "all 0.2s"
       }}>
-        <div style={{ backgroundColor: "#EBF8FF", padding: "15px", borderRadius: "50%", marginBottom: "15px" }}>
-            <FiPlus style={{ fontSize: "30px" }} />
+        <div style={{
+          width: "50px", height: "50px", borderRadius: "50%",
+          backgroundColor: "#E2E8F0", display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "15px"
+        }}>
+          <FiPlus size={24} />
         </div>
         <span style={{ fontWeight: "600" }}>Add New Product</span>
       </div>
     );
   }
 
-
+  // --- VARIANT: PRODUCT CARD ---
   return (
     <div style={{
-      backgroundColor: "var(--white)",
+      backgroundColor: "white",
       borderRadius: "20px",
-      padding: "15px",
-      boxShadow: "var(--shadow-soft)",
-      position: "relative",
-      minHeight: "260px",
+      padding: "20px",
+      boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)",
       display: "flex",
-      flexDirection: "column"
+      flexDirection: "column",
+      alignItems: "center",
+      textAlign: "center",
+      position: "relative", // Needed for positioning buttons
+      transition: "transform 0.2s",
+      minHeight: "280px"
     }}>
-      {/* botons*/}
-      <div style={{ position: "absolute", top: "15px", right: "15px", display: "flex", gap: "8px", zIndex: 10 }}>
-        <button style={{ width: "30px", height: "30px", borderRadius: "50%", backgroundColor: "white", boxShadow: "0 2px 5px rgba(0,0,0,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary-blue)" }}>
-            <FiEdit2 size={14} />
-        </button>
-        <button style={{ width: "30px", height: "30px", borderRadius: "50%", backgroundColor: "white", boxShadow: "0 2px 5px rgba(0,0,0,0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--accent-red)" }}>
-            <FiTrash2 size={14} />
-        </button>
-      </div>
+      
+      {/* ADMIN ACTIONS (Edit & Delete) */}
+      {isAdmin && (
+        <div style={{ position: "absolute", top: "15px", right: "15px", display: "flex", gap: "8px" }}>
+            {/* Edit Button (Visual only for now) */}
+            <button 
+                onClick={(e) => { e.stopPropagation(); onEdit(product); }} 
+                style={{ border: "none", background: "#EDF2F7", borderRadius: "8px", padding: "6px", cursor: "pointer", color: "#2B6CB0" }}
+            >
+                <FiEdit size={16} />
+            </button>
+            
+            {/* Delete Button */}
+            <button 
+                onClick={(e) => { 
+                    e.stopPropagation(); // Prevents clicking the card background
+                    if(window.confirm("Are you sure you want to delete this product?")) {
+                        onDelete(product._id); 
+                    }
+                }} 
+                style={{ border: "none", background: "#FED7D7", borderRadius: "8px", padding: "6px", cursor: "pointer", color: "#C53030" }}
+            >
+                <FiTrash2 size={16} />
+            </button>
+        </div>
+      )}
 
-      {/* Imagen*/}
-      <div style={{ width: "100%", height: "140px", borderRadius: "15px", overflow: "hidden", marginBottom: "15px" }}>
-        <img 
-            src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=60" 
-            alt="Product" 
-            style={{ width: "100%", height: "100%", objectFit: "cover" }} 
-        />
-      </div>
+      {/* Image */}
+      <img 
+        src={product.image || "https://cdn-icons-png.flaticon.com/512/1160/1160358.png"} 
+        alt={product.name} 
+        style={{ width: "120px", height: "120px", objectFit: "contain", marginBottom: "15px" }} 
+      />
 
       {/* Info */}
-      <div style={{ marginTop: "auto" }}>
-        <h3 style={{ margin: "0 0 5px 0", fontSize: "16px", color: "var(--primary-dark)" }}>{product.name}</h3>
-        <p style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "var(--accent-red)" }}>
-            ${product.price.toFixed(2)}
-        </p>
-      </div>
+      <h3 style={{ margin: "0 0 5px 0", fontSize: "18px", color: "#2D3748" }}>{product.name}</h3>
+      <span style={{ fontSize: "14px", color: "#718096", textTransform: "capitalize", marginBottom: "10px", display: "block" }}>
+        {product.category}
+      </span>
+      <span style={{ fontSize: "20px", fontWeight: "bold", color: "#003366" }}>
+        ${product.price.toFixed(2)}
+      </span>
+
     </div>
   );
 }

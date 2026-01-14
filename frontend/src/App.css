@@ -1,14 +1,14 @@
-/* DEFINICIÓN DE COLORES */
+
 :root {
-  --bg-predominante: #F8F9FA; /* Gris de fondo */
-  --input-bg: #FFFFFF;        /* Inputs blancos */
-  --primary-blue: #003366;    /* Azul UCE */
-  --action-red: #E63946;      /* Rojo UCE */
+  --bg-predominante: #F8F9FA; /* gray fondo */
+  --input-bg: #FFFFFF;        /* Inputs white */
+  --primary-blue: #003366;    /* blue UCE */
+  --action-red: #E63946;      /* red UCE */
   --text-dark: #212529;
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* CONFIGURACIÓN GENERAL */
+
 body {
   margin: 0;
   padding: 0;
@@ -22,18 +22,18 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  width: 100%; /* Asegura que ocupe todo el ancho */
+  width: 100%; 
 }
 
 .auth-container {
-  background-color: transparent; /* Sin carta, fondo transparente */
+  background-color: transparent; 
   padding: 1rem;
   width: 100%;
   max-width: 450px;
   text-align: center;
 }
 
-/* LOGO */
+
 .logo {
   width: 200px;
   height: auto;
@@ -50,12 +50,12 @@ body {
   font-weight: 500;
 }
 
-/* TABS TIPO CÁPSULA (PILL) */
+
 .tabs {
   display: flex;
   background-color: #fff;
   padding: 5px;
-  border-radius: 10px; /* Redondo completo */
+  border-radius: 10px; 
   border: 1px solid #dee2e6;
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
   margin-bottom: 2rem;
@@ -72,7 +72,7 @@ body {
   cursor: pointer;
   font-weight: 600;
   color: var(--primary-blue);
-  border-radius: 8px; /* Botón interno redondo */
+  border-radius: 8px; 
   transition: all 0.3s ease;
   font-size: 1rem;
 }
@@ -83,12 +83,12 @@ body {
   box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* INPUTS Y SELECTS (ESTANDARIZADOS) */
+
 form {
   text-align: left;
 }
 
-/* Contenedor de cada input */
+
 .form-group {
   margin-bottom: 1.2rem;
 }
@@ -101,16 +101,16 @@ label {
   display: block;
 }
 
-/* Aquí está el secreto para que no cambien de tamaño */
+
 input, select {
   width: 100%;
-  padding: 14px; /* Tamaño fijo para todos */
+  padding: 14px; 
   background-color: var(--input-bg);
   border: 1px solid #dee2e6;
   border-radius: 8px;
   font-size: 1rem;
   color: var(--text-dark);
-  box-sizing: border-box; /* IMPORTANTE: El padding no afecta el ancho */
+  box-sizing: border-box; 
   transition: all 0.2s;
   font-family: inherit;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
@@ -122,13 +122,13 @@ input:focus, select:focus {
   box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.15);
 }
 
-/* Input con error */
+
 .input-error {
   border-color: var(--action-red) !important;
   background-color: #fff5f5;
 }
 
-/* BOTÓN DE ACCIÓN */
+
 .submit-btn {
   margin-top: 20px;
   width: 100%;
@@ -148,7 +148,7 @@ input:focus, select:focus {
   background-color: #c92a37;
 }
 
-/* MENSAJES DE ERROR */
+
 .error-msg {
   color: var(--action-red);
   font-size: 0.85rem;

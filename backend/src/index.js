@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB } from "./db.js";
 import authRoutes from "./routes/auth.routes.js";
+import productRoutes from "./routes/products.routes.js";
 
 // Initialize dotenv to use .env variables
 dotenv.config();
@@ -18,7 +19,9 @@ app.use(cors({
     credentials: true                
 }));
 app.use(express.json());
+// Routes
 app.use("/api", authRoutes);
+app.use("/api", productRoutes)
 
 // Test Route
 app.get('/', (req, res) => {
