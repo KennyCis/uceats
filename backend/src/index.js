@@ -1,6 +1,7 @@
 import express from 'express'; 
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
 import { connectDB } from "./db.js";
 import authRoutes from "./routes/auth.routes.js";
 import productRoutes from "./routes/products.routes.js";
@@ -20,6 +21,7 @@ app.use(cors({
 }));
 app.use(express.json());
 // Routes
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 app.use("/api", authRoutes);
 app.use("/api", productRoutes)
 
