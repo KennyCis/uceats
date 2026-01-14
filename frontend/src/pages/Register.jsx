@@ -1,44 +1,38 @@
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import InputGroup from "../components/InputGroup";
 import { registerRequest } from "../api/auth";
 import { useAuth } from "../context/AuthContext";
 
 function Register() {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, formState: { errors }, setError } = useForm();
   const { signin } = useAuth();
+  const navigate = useNavigate();
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      
       const formData = new FormData();
-      
       formData.append("name", data.name);
       formData.append("role", data.role);
       formData.append("email", data.email);
       formData.append("password", data.password);
-      formData.append("birthdate", data.date);
+      formData.append("birthdate", data.date); 
       formData.append("termsAccepted", data.conditions);
       
-      //ADD photo
       if (data.file && data.file[0]) {
           formData.append("image", data.file[0]); 
       }
 
-      console.log("Sending FormData...");
-      
-      // send formData 
       const res = await registerRequest(formData);
       
-      console.log("Server Response:", res.data);
-      
-      //save user and context
       signin(res.data);
       
-      alert("Registration successful! 🎉");
+      navigate("/home");
       
     } catch (error) {
-      console.error("Registration error:", error.response?.data || error.message);
-      alert("Error: " + (error.response?.data?.message || "Server error"));
+      if (error.response && error.response.data) {
+        console.error("Registration error", error.response.data);
+      }
     }
   });
 
@@ -108,7 +102,7 @@ function Register() {
           type="file" 
           {...register("file", { required: "Profile photo is required" })} 
           className={errors.file ? "input-error" : ""}
-          accept="image/*" //acepted image
+          accept="image/*"
         />
         {errors.file && <span className="error-msg">{errors.file.message}</span>}
       </div>

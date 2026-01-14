@@ -6,12 +6,19 @@ import axios from "axios";
 import logo from "../assets/logo-uceats.png";
 import { useAuth } from "../context/AuthContext";
 
+// Default Avatar URL (if image is missing or broken)
+const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+
 function ProfilePage() {
   const { user, updateUser } = useAuth(); 
   const [activeTab, setActiveTab] = useState("profile");
   
-  const { register, handleSubmit, setValue } = useForm();
+  // State to show the selected image immediately (preview)
+  const [imagePreview, setImagePreview] = useState(null);
 
+  const { register, handleSubmit, setValue, watch } = useForm();
+
+  // Load user data into form
   useEffect(() => {
     if (user) {
       setValue("name", user.name);
@@ -19,8 +26,21 @@ function ProfilePage() {
       if (user.birthdate) {
         setValue("birthdate", user.birthdate.split('T')[0]);
       }
+      // Set initial image
+      setImagePreview(user.image);
     }
   }, [user, setValue]);
+
+  // Handle Image Selection (Preview)
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Create a fake URL to show the image immediately
+      setImagePreview(URL.createObjectURL(file));
+      // Manually set the file in the form
+      setValue("image", e.target.files);
+    }
+  };
 
   const onSubmit = async (data) => {
     try {
@@ -40,14 +60,14 @@ function ProfilePage() {
 
       const res = await axios.put(`http://localhost:3000/api/profile/${user.id}`, formData);
       
-
+      // Update Global Context
       updateUser(res.data);
       
-      alert("Profile updated successfully! ✅");
+      // No alerts, just smooth UI update
+      // You could add a small toast notification here if you wanted later
 
     } catch (error) {
-      console.error(error);
-      alert("Error updating profile ❌");
+      // Silent error handling (or UI feedback if needed)
     }
   };
 
@@ -82,20 +102,28 @@ function ProfilePage() {
 
       <div style={mainContentStyle}>
         
-        {/* --- LEFT CARD--- */}
+        {/* --- LEFT CARD --- */}
         <div style={leftCardStyle}>
             
+            {/* IMAGE CONTAINER */}
             <div style={{ position: "relative", width: "120px", height: "120px", margin: "0 auto 20px" }}>
                 <img 
-                    src={user.image || "https://via.placeholder.com/150"} 
+                    src={imagePreview || DEFAULT_AVATAR} 
                     alt="Profile" 
-                    style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover", border: "4px solid #EDF2F7" }} 
+                    onError={(e) => { e.target.src = DEFAULT_AVATAR; }} // FIX: Fallback if image fails
+                    style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover", border: "4px solid #EDF2F7", backgroundColor: "#fff" }} 
                 />
                 
-                
+                {/* Camera Button */}
                 <label style={{ position: "absolute", bottom: "0", right: "0", backgroundColor: "var(--primary-blue)", color: "white", padding: "8px", borderRadius: "50%", cursor: "pointer", boxShadow: "0 2px 5px rgba(0,0,0,0.2)" }}>
                     <FiCamera size={16} />
-                    <input type="file" style={{ display: "none" }} accept="image/*" {...register("image")} />
+                    {/* CUSTOM INPUT HANDLER FOR PREVIEW */}
+                    <input 
+                        type="file" 
+                        style={{ display: "none" }} 
+                        accept="image/*" 
+                        onChange={handleImageChange} // Use custom handler
+                    />
                 </label>
             </div>
 
@@ -119,8 +147,7 @@ function ProfilePage() {
                 </div>
             </div>
 
-            
-            <form onSubmit={handleSubmit(onSubmit)}>               
+            <form onSubmit={handleSubmit(onSubmit)}>              
                 {activeTab === "profile" && (
                     <div className="animate-fade-in">
                         <h2 style={formSectionTitleStyle}>Profile Information</h2>
@@ -135,7 +162,6 @@ function ProfilePage() {
                     </div>
                 )}
 
-                {/* --- MAIL Y PASSWORD --- */}
                 {activeTab === "mail" && (
                     <div className="animate-fade-in">
                         <h2 style={formSectionTitleStyle}>Email & Security</h2>
