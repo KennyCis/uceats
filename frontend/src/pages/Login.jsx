@@ -2,24 +2,29 @@ import { useForm } from "react-hook-form";
 import InputGroup from "../components/InputGroup"; 
 import { loginRequest } from "../api/auth";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate();
+  //funtion SING IN
+  const { signin } = useAuth();
 
   const onLogin = handleSubmit(async (data) => {
     try {
       console.log("Attempting login with:", data);
       
-      const res = await loginRequest(data); //call API
+      const res = await loginRequest(data); // Call API
       
       console.log("Login Success:", res.data);
       
-      // login yes ==> Home
+      //Save global
+      signin(res.data);
+      
+      // Navigate to Home
       navigate("/home"); 
       
     } catch (error) {
-      
       console.error("Login error:", error.response?.data);
       alert(error.response?.data?.message || "Invalid credentials");
     }

@@ -1,25 +1,41 @@
 import { useForm } from "react-hook-form";
 import InputGroup from "../components/InputGroup";
 import { registerRequest } from "../api/auth";
+import { useAuth } from "../context/AuthContext";
 
 function Register() {
   const { register, handleSubmit, formState: { errors } } = useForm();
+  const { signin } = useAuth();
 
   const onSubmit = handleSubmit(async (data) => {
     try {
       
-      const userData = {
-        ...data,
-        birthdate: data.date,          
-        termsAccepted: data.conditions 
-      };
-
-      console.log("Sending data to server:", userData);
+      const formData = new FormData();
       
-      const res = await registerRequest(userData);
+      formData.append("name", data.name);
+      formData.append("role", data.role);
+      formData.append("email", data.email);
+      formData.append("password", data.password);
+      formData.append("birthdate", data.date);
+      formData.append("termsAccepted", data.conditions);
+      
+      //ADD photo
+      if (data.file && data.file[0]) {
+          formData.append("image", data.file[0]); 
+      }
+
+      console.log("Sending FormData...");
+      
+      // send formData 
+      const res = await registerRequest(formData);
+      
       console.log("Server Response:", res.data);
       
-      alert("Registration successful! ");
+      //save user and context
+      signin(res.data);
+      
+      alert("Registration successful! 🎉");
+      
     } catch (error) {
       console.error("Registration error:", error.response?.data || error.message);
       alert("Error: " + (error.response?.data?.message || "Server error"));
@@ -92,6 +108,7 @@ function Register() {
           type="file" 
           {...register("file", { required: "Profile photo is required" })} 
           className={errors.file ? "input-error" : ""}
+          accept="image/*" //acepted image
         />
         {errors.file && <span className="error-msg">{errors.file.message}</span>}
       </div>
@@ -102,7 +119,7 @@ function Register() {
           type="checkbox" 
           {...register("conditions", { required: "You must accept the terms" })} 
           id="terms"
-          style={{ width: "auto", margin: 0 }} /* Excepción pequeña para el checkbox */
+          style={{ width: "auto", margin: 0 }}
         />
         <label htmlFor="terms" style={{ margin: 0, fontWeight: "normal", color: "#555" }}>
           I accept the terms and conditions 

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import HomePage from "./pages/HomePage";
+import ProfilePage from "./pages/ProfilePage";
 import logo from "./assets/logo-uceats.png";
 import "./App.css";
 
@@ -12,7 +13,6 @@ function AuthPage() {
   return (
     
     <div className="auth-wrapper"> 
-      
       <div className="auth-container">
         <img src={logo} alt="UCEats Logo" className="logo" style={{ width: "250px", marginBottom: "20px" }} /> 
         
@@ -49,6 +49,9 @@ function App() {
 
         {/* Rut Home*/}
         <Route path="/home" element={<HomePage />} />
+
+        {/*profile*/}
+        <Route path="/profile" element={<ProfilePage />} />
 
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

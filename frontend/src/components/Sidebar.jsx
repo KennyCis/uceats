@@ -1,6 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
 import { FiGrid, FiShoppingBag, FiSettings, FiStar, FiCoffee, FiPackage } from "react-icons/fi"; 
-import { BiFoodMenu } from "react-icons/bi";
 
 function Sidebar() {
   const location = useLocation();
@@ -8,7 +7,7 @@ function Sidebar() {
   const sidebarStyle = {
     width: "250px",
     height: "100vh",
-    backgroundColor: "var(--white)", // Fondo Blanco
+    backgroundColor: "var(--white)",
     position: "fixed",
     left: 0,
     top: 0,
@@ -19,7 +18,6 @@ function Sidebar() {
     zIndex: 50
   };
 
-  // Función para estilos dinámicos (Activo vs Inactivo)
   const getLinkStyle = (path) => {
     const isActive = location.pathname === path;
     return {
@@ -31,7 +29,6 @@ function Sidebar() {
       fontSize: "14px",
       fontWeight: "500",
       transition: "all 0.2s",
-      // Si está activo: Fondo Azul Oscuro, Texto Blanco. Si no: Transparente, Texto Gris
       backgroundColor: isActive ? "var(--primary-dark)" : "transparent",
       color: isActive ? "var(--white)" : "var(--text-muted)",
       boxShadow: isActive ? "0 4px 12px rgba(0, 47, 108, 0.25)" : "none"
@@ -44,7 +41,6 @@ function Sidebar() {
 
   return (
     <aside style={sidebarStyle}>
-      {/* Logo Texto */}
       <div style={{ fontSize: "22px", fontWeight: "800", color: "var(--primary-dark)", marginBottom: "40px", paddingLeft: "10px" }}>
         UCEats<span style={{color: "var(--accent-red)"}}>.</span>
       </div>
