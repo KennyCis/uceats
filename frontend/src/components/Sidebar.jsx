@@ -1,17 +1,70 @@
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
-  FiGrid,        //  All Products
-  FiCoffee,      //  Drinks
-  FiPackage,     //  Snacks
-  FiStar,        //  Popular
-  FiDisc,        //  Others
-  FiSettings,    //  Manage
-  FiLayers       //  Food (Usaremos Layers o Dinner)
+  FiGrid, FiCoffee, FiPackage, FiStar, FiDisc, 
+  FiHelpCircle
 } from "react-icons/fi"; 
 import { MdOutlineFastfood } from "react-icons/md"; 
+import HelpModal from "./HelpModal"; 
+import { useAuth } from "../context/AuthContext";
+
+
+const SidebarItem = ({ to, icon: Icon, label, isActive, onClick }) => {
+    const [isHovered, setIsHovered] = useState(false);
+  
+    const style = {
+      display: "flex",
+      alignItems: "center",
+      padding: "12px 15px",
+      marginBottom: "8px",
+      borderRadius: "12px",
+      fontSize: "14px",
+      fontWeight: "500", 
+      textDecoration: "none",
+      transition: "all 0.2s ease-in-out",
+      cursor: "pointer",
+      
+    
+      backgroundColor: isActive ? "var(--primary-dark)" : (isHovered ? "#F7FAFC" : "transparent"),
+      color: isActive ? "var(--white)" : "var(--primary-dark)", 
+      
+      
+      transform: isHovered && !isActive ? "translateX(5px)" : "none",
+      boxShadow: isHovered && !isActive ? "0 2px 8px rgba(0,0,0,0.05)" : (isActive ? "0 4px 12px rgba(0, 47, 108, 0.25)" : "none")
+    };
+  
+    
+    if (to) {
+        return (
+            <Link 
+                to={to} 
+                style={style}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+            >
+                <Icon style={{ marginRight: "12px", fontSize: "18px" }}/> {label}
+            </Link>
+        );
+    }
+
+    return (
+        <div 
+            onClick={onClick} 
+            style={style}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            <Icon style={{ marginRight: "12px", fontSize: "20px" }}/> {label}
+        </div>
+    );
+};
+
 
 function Sidebar() {
   const location = useLocation();
+  const { user } = useAuth();
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  
   
   const isActive = (path, queryParam = null) => {
     const searchParams = new URLSearchParams(location.search);
@@ -39,88 +92,94 @@ function Sidebar() {
     display: "flex",
     flexDirection: "column",
     padding: "30px 20px",
-    zIndex: 50
+    zIndex: 50,
+    overflowY: "auto"
   };
 
-  const getLinkStyle = (active) => ({
-    display: "flex",
-    alignItems: "center",
-    padding: "12px 15px",
-    marginBottom: "8px",
-    borderRadius: "12px",
-    fontSize: "14px",
-    fontWeight: "500",
-    transition: "all 0.2s",
-    textDecoration: "none",
-    backgroundColor: active ? "var(--primary-dark)" : "transparent",
-    color: active ? "var(--white)" : "var(--text-muted)",
-    boxShadow: active ? "0 4px 12px rgba(0, 47, 108, 0.25)" : "none",
-    cursor: "pointer"
-  });
-
   const titleStyle = {
-    fontSize: "11px", fontWeight: "700", color: "#CBD5E0", letterSpacing: "1.2px", marginBottom: "15px", marginTop: "25px", paddingLeft: "10px"
+    fontSize: "11px", fontWeight: "800", color: "#A0AEC0", letterSpacing: "1.2px", marginBottom: "15px", marginTop: "25px", paddingLeft: "10px", textTransform: "uppercase"
   };
 
   return (
-    <aside style={sidebarStyle}>
-      {/* LOGO */}
-      <div style={{ fontSize: "22px", fontWeight: "800", color: "var(--primary-dark)", marginBottom: "30px", paddingLeft: "10px" }}>
-        Admin<span style={{color: "var(--accent-red)"}}>.</span>
-      </div>
-
-      <div style={titleStyle}>MENU</div>
-      
-      {/* 1. All Products */}
-      <Link to="/home" style={getLinkStyle(isActive("/home"))}>
-        <FiGrid style={{ marginRight: "12px", fontSize: "18px" }}/> All Products
-      </Link>
-
-      {/* 2. Most Popular */}
-      <Link to="/home?filter=popular" style={getLinkStyle(isActive("/home", "filter=popular"))}>
-        <FiStar style={{ marginRight: "12px", fontSize: "18px", color: isActive("/home", "filter=popular") ? "white" : "gold" }}/> Most Popular
-      </Link>
-
-      <div style={titleStyle}>CATEGORIES</div>
-
-      {/* 3. Food (NUEVO) */}
-      <Link to="/home?category=food" style={getLinkStyle(isActive("/home", "category=food"))}>
-        <MdOutlineFastfood style={{ marginRight: "12px" }}/> Food
-      </Link>
-      
-      {/* 4. Drinks */}
-      <Link to="/home?category=drinks" style={getLinkStyle(isActive("/home", "category=drinks"))}>
-        <FiCoffee style={{ marginRight: "12px" }}/> Drinks
-      </Link>
-      
-      {/* 5. Snacks */}
-      <Link to="/home?category=snacks" style={getLinkStyle(isActive("/home", "category=snacks"))}>
-        <FiPackage style={{ marginRight: "12px" }}/> Snacks
-      </Link>
-
-      {/* 6. Others (NUEVO) */}
-      <Link to="/home?category=others" style={getLinkStyle(isActive("/home", "category=others"))}>
-        <FiDisc style={{ marginRight: "12px" }}/> Others
-      </Link>
-
-      {/* 7. MANAGE */}
-      <div style={{ marginTop: "20px", borderTop: "1px solid #EDF2F7", paddingTop: "20px" }}>
-        {/* Este botón abrirá la carta desplegable en el futuro. 
-            Por ahora lo dejamos visualmente listo. */}
-        <div 
-            style={{...getLinkStyle(false), color: "var(--primary-dark)", border: "1px dashed #CBD5E0", justifyContent: "center"}}
-            onClick={() => alert("Aquí se abrirá la carta para editar categorías")}
-        >
-          <FiSettings style={{ marginRight: "12px" }}/> Manage Menu
+    <>
+      <aside style={sidebarStyle}>
+        
+        {/* ROL USER*/}
+        <div style={{ marginBottom: "30px", paddingLeft: "10px" }}>
+            <small style={{ color: "var(--primary-dark)", fontSize: "10px", fontWeight: "700", letterSpacing: "1px", textTransform: "uppercase", opacity: 0.7 }}>
+                Current View
+            </small>
+            <h1 style={{ margin: "5px 0 0 0", color: "var(--primary-dark)", fontSize: "28px", textTransform: "uppercase", letterSpacing: "-1px" }}>
+                {user ? user.role : "Admin"}
+                <span style={{color: "var(--accent-red)", fontSize: "40px", lineHeight: "0px"}}>.</span>
+            </h1>
         </div>
-      </div>
 
-      {/* ORDERS*/}
-      <div style={{ marginTop: "auto" }}>
-         {/* Dejamos el espacio reservado */}
-      </div>
-      
-    </aside>
+        <div style={titleStyle}>MENU</div>
+        
+        <SidebarItem 
+            to="/home" 
+            icon={FiGrid} 
+            label="All Products" 
+            isActive={isActive("/home")} 
+        />
+
+        <SidebarItem 
+            to="/home?filter=popular" 
+            icon={FiStar} 
+            label="Most Popular" 
+            isActive={isActive("/home", "filter=popular")} 
+        />
+
+        <div style={titleStyle}>CATEGORIES</div>
+
+        <SidebarItem 
+            to="/home?category=food" 
+            icon={MdOutlineFastfood} 
+            label="Food" 
+            isActive={isActive("/home", "category=food")} 
+        />
+        
+        <SidebarItem 
+            to="/home?category=drinks" 
+            icon={FiCoffee} 
+            label="Drinks" 
+            isActive={isActive("/home", "category=drinks")} 
+        />
+        
+        <SidebarItem 
+            to="/home?category=snacks" 
+            icon={FiPackage} 
+            label="Snacks" 
+            isActive={isActive("/home", "category=snacks")} 
+        />
+
+        <SidebarItem 
+            to="/home?category=others" 
+            icon={FiDisc} 
+            label="Others" 
+            isActive={isActive("/home", "category=others")} 
+        />
+
+        {/* HELP SECTION */}
+        <div style={{ marginTop: "40px", paddingTop: "20px", borderTop: "1px dashed #E2E8F0" }}>
+            <SidebarItem 
+                onClick={() => setIsHelpOpen(true)}
+                icon={FiHelpCircle}
+                label="Help & Support"
+                isActive={false} // Siempre inactivo visualmente, solo hover
+            />
+        </div>
+
+        {/* ESPACIO PARA ORDERS (Futuro) */}
+        <div style={{ marginTop: "20px" }}>
+             {/* Orders Pending... */}
+        </div>
+
+      </aside>
+
+      {isHelpOpen && <HelpModal onClose={() => setIsHelpOpen(false)} />}
+    </>
   );
 }
 

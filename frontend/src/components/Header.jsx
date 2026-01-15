@@ -1,28 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiUser, FiLogOut, FiChevronDown } from "react-icons/fi";
-import logo from "../assets/logo-uceats.png"; 
-// 👇 1. IMPORTAR EL CONTEXTO (Vital para que cambie la foto)
+import uceatsLogo from "../assets/logo-uceats.png"; 
+import uceLogo from "../assets/logo-uce.png"; 
 import { useAuth } from "../context/AuthContext";
 
 function Header() {
   const navigate = useNavigate();
-  // 👇 2. OBTENER DATOS DEL USUARIO
   const { user, logout } = useAuth(); 
   const [isOpen, setIsOpen] = useState(false);
 
-  // Debug: Verificamos en consola si llegan los datos
-  useEffect(() => {
-    console.log("Datos en Header:", user);
-  }, [user]);
-
+  // --- STYLES ---
   const headerStyle = {
     height: "80px",
     backgroundColor: "var(--white)",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "0 40px",
+    padding: "0 40px", // Global padding
     position: "sticky",
     top: 0,
     zIndex: 40,
@@ -57,49 +52,64 @@ function Header() {
     textAlign: "left"
   };
 
+  // Helper style for the 3 columns layout
+  const sectionStyle = {
+    flex: 1,
+    display: "flex",
+    alignItems: "center"
+  };
+
   return (
     <header style={headerStyle}>
-      {/* Lado Izquierdo: LOGO */}
-      <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-        <img src={logo} alt="Logo" style={{ height: "45px" }} />
-        <div>
-            <h3 style={{ margin: 0, color: "var(--primary-dark)" }}>UCEats</h3>
-            <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>Panel de Control</span>
-        </div>
+      
+      {/* 1. LEFT SECTION: UCE Logo */}
+      <div style={{ ...sectionStyle, justifyContent: "flex-start" }}>
+        <img 
+            src={uceLogo} 
+            alt="UCE Logo" 
+            // Added marginLeft to separate it from the edge
+            style={{ height: "50px", objectFit: "contain", marginLeft: "20px" }} 
+        />
       </div>
 
-      {/* Lado Derecho: PERFIL DINÁMICO */}
-      <div style={{ position: "relative" }}>
+      {/* 2. CENTER SECTION: UCEats Logo (Centered) */}
+      <div style={{ ...sectionStyle, justifyContent: "center" }}>
+        <img 
+            src={uceatsLogo} 
+            alt="UCEats Logo" 
+            style={{ height: "60px", objectFit: "contain" }} 
+        />
+      </div>
+
+      {/* 3. RIGHT SECTION: User Profile */}
+      <div style={{ ...sectionStyle, justifyContent: "flex-end", position: "relative" }}>
         <button 
           onClick={() => setIsOpen(!isOpen)}
           style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 15px", borderRadius: "30px", backgroundColor: "#F7FAFC", border: "none", cursor: "pointer" }}
         >
-          {/* FOTO DE PERFIL */}
+          {/* PROFILE PHOTO */}
           <div style={{ width: "35px", height: "35px", borderRadius: "50%", overflow: "hidden", backgroundColor: "var(--primary-dark)", color: "white", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            
-            {/* Lógica: Si hay usuario y tiene imagen, mostramos la imagen. Si no, el icono. */}
             {user && user.image ? (
                 <img 
                   src={user.image} 
                   alt="Profile" 
                   style={{ width: "100%", height: "100%", objectFit: "cover" }} 
-                  onError={(e) => { e.target.style.display = 'none'; }} // Si falla la imagen, no la muestra rota
+                  onError={(e) => { e.target.style.display = 'none'; }} 
                 />
             ) : (
-                <FiUser /> // Icono por defecto
+                <FiUser /> 
             )}
-            
           </div>
           
-          {/* NOMBRE DEL USUARIO (Aquí cambiamos "Admin" por el nombre real) */}
+          {/* USER NAME */}
           <span style={{ fontSize: "14px", fontWeight: "600", color: "var(--text-main)" }}>
-            {user ? user.name : "Invitado"} 
+            {user ? user.name : "Guest"} 
           </span>
           
           <FiChevronDown />
         </button>
 
-        {/* Menú Flotante */}
+        {/* Dropdown Menu */}
         <div style={dropdownStyle}>
             <button 
                 onClick={() => {
@@ -117,7 +127,7 @@ function Header() {
             
             <button 
                 onClick={() => {
-                    logout(); // Cierra sesión
+                    logout(); 
                     navigate("/");
                 }} 
                 style={{ ...itemStyle, color: "var(--accent-red)" }}
@@ -126,6 +136,7 @@ function Header() {
             </button>
         </div>
       </div>
+
     </header>
   );
 }

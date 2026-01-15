@@ -6,19 +6,16 @@ import axios from "axios";
 import logo from "../assets/logo-uceats.png";
 import { useAuth } from "../context/AuthContext";
 
-// Default Avatar URL (if image is missing or broken)
 const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
 function ProfilePage() {
   const { user, updateUser } = useAuth(); 
   const [activeTab, setActiveTab] = useState("profile");
   
-  // State to show the selected image immediately (preview)
   const [imagePreview, setImagePreview] = useState(null);
 
-  const { register, handleSubmit, setValue, watch } = useForm();
+  const { register, handleSubmit, setValue } = useForm();
 
-  // Load user data into form
   useEffect(() => {
     if (user) {
       setValue("name", user.name);
@@ -31,13 +28,11 @@ function ProfilePage() {
     }
   }, [user, setValue]);
 
-  // Handle Image Selection (Preview)
+  // Handle Image Selection 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Create a fake URL to show the image immediately
       setImagePreview(URL.createObjectURL(file));
-      // Manually set the file in the form
       setValue("image", e.target.files);
     }
   };
@@ -64,10 +59,8 @@ function ProfilePage() {
       updateUser(res.data);
       
       // No alerts, just smooth UI update
-      // You could add a small toast notification here if you wanted later
-
     } catch (error) {
-      // Silent error handling (or UI feedback if needed)
+      // Silent error handling
     }
   };
 
@@ -96,7 +89,14 @@ function ProfilePage() {
           <FiArrowLeft size={20} />
           Back to Home
         </Link>
-        <img src={logo} alt="UCEats Logo" style={{ height: "50px", objectFit: "contain" }} />
+        
+        {/* LOGO */}
+        <img 
+            src={logo} 
+            alt="UCEats Logo" 
+            style={{ height: "60px", objectFit: "contain" }} 
+        />
+        
         <div style={{width: 100}}></div> 
       </div>
 
@@ -110,19 +110,18 @@ function ProfilePage() {
                 <img 
                     src={imagePreview || DEFAULT_AVATAR} 
                     alt="Profile" 
-                    onError={(e) => { e.target.src = DEFAULT_AVATAR; }} // FIX: Fallback if image fails
+                    onError={(e) => { e.target.src = DEFAULT_AVATAR; }} 
                     style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover", border: "4px solid #EDF2F7", backgroundColor: "#fff" }} 
                 />
                 
                 {/* Camera Button */}
                 <label style={{ position: "absolute", bottom: "0", right: "0", backgroundColor: "var(--primary-blue)", color: "white", padding: "8px", borderRadius: "50%", cursor: "pointer", boxShadow: "0 2px 5px rgba(0,0,0,0.2)" }}>
                     <FiCamera size={16} />
-                    {/* CUSTOM INPUT HANDLER FOR PREVIEW */}
                     <input 
                         type="file" 
                         style={{ display: "none" }} 
                         accept="image/*" 
-                        onChange={handleImageChange} // Use custom handler
+                        onChange={handleImageChange} 
                     />
                 </label>
             </div>
