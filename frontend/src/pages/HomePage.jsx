@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
@@ -8,9 +9,12 @@ import CreateProductModal from "../components/CreateProductModal";
 function HomePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [products, setProducts] = useState([]);
-  
-  //edit
   const [editingProduct, setEditingProduct] = useState(null); 
+
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const categoryFilter = searchParams.get("category");
+  const specialFilter = searchParams.get("filter");
 
   //search data
   const fetchProducts = async () => {
@@ -18,7 +22,7 @@ function HomePage() {
       const response = await axios.get("http://localhost:3000/api/products");
       setProducts(response.data);
     } catch (error) {
-      console.error("Error fetching products:", error);
+      //silent
     }
   };
 
@@ -31,10 +35,10 @@ function HomePage() {
     try {
         await axios.delete(`http://localhost:3000/api/products/${id}`);
         fetchProducts(); 
-        alert("Product deleted successfully");
+        //no alert
     } catch (error) {
         console.error("Error deleting:", error);
-        alert("Could not delete product");
+        //silent error
     }
   };
 
@@ -50,6 +54,27 @@ function HomePage() {
     setIsModalOpen(true);
   };
 
+  // 2. FILTERING LOGIC
+  const filteredProducts = products.filter(p => {
+    // A. Filter by Popularity
+    if (specialFilter === "popular") {
+        return p.isPopular === true;
+    }
+    // B. Filter by Category
+    if (categoryFilter) {
+        return p.category === categoryFilter;
+    }
+    // C. Default: Show All
+    return true;
+  });
+
+  // 3. Dynamic Title Helper
+  const getPageTitle = () => {
+    if (specialFilter === "popular") return "Most Popular ⭐";
+    if (categoryFilter) return categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1);
+    return "All Products";
+  };
+
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-body)" }}>
       <Sidebar />
@@ -59,9 +84,14 @@ function HomePage() {
         
         <main style={{ padding: "40px 80px" }}>
           
+          {/* Dynamic Header */}
           <div style={{ marginBottom: "30px" }}>
-            <h1 style={{ margin: 0, color: "var(--primary-dark)", fontSize: "28px" }}>Products Management</h1>
-            <p style={{ color: "var(--text-muted)", marginTop: "5px" }}>Manage your bar menu items</p>
+            <h1 style={{ margin: 0, color: "var(--primary-dark)", fontSize: "28px" }}>
+                {getPageTitle()}
+            </h1>
+            <p style={{ color: "var(--text-muted)", marginTop: "5px" }}>
+                {filteredProducts.length} items found
+            </p>
           </div>
 
           <div style={{ 
@@ -70,13 +100,13 @@ function HomePage() {
             gap: "25px" 
           }}>
             
-            {/* card ADD */}
+            {/* Card ADD - Only show if NO filter is active */}
             <div onClick={openCreateModal}>
                <ProductCard variant="add" />
             </div>
 
-            {/*cards the products*/}
-            {products.map(p => (
+            {/* Render Filtered Products */}
+            {filteredProducts.map(p => (
               <ProductCard 
                   key={p._id} 
                   product={p} 
@@ -86,11 +116,19 @@ function HomePage() {
               />
             ))}
 
+            {/* Empty State Message */}
+            {filteredProducts.length === 0 && (
+                <div style={{ gridColumn: "1 / -1", textAlign: "center", color: "#A0AEC0", marginTop: "50px" }}>
+                    <h3>No products found in this category.</h3>
+                    <p>Add a new one!</p>
+                </div>
+            )}
+
           </div>
         </main>
       </div>
 
-      {/*modal conected*/}
+      {/* Modal */}
       {isModalOpen && (
         <CreateProductModal 
           onClose={() => setIsModalOpen(false)} 

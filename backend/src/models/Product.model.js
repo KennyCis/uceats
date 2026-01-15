@@ -6,22 +6,32 @@ const productSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    description: {
+        type: String,
+        trim: true
+    },
     price: {
         type: Number,
         required: true,
         default: 0
     },
     category: {
-        type: String, 
-        required: true
+        type: String,
+        // 👇 AGREGAMOS LAS NUEVAS CATEGORÍAS AQUÍ
+        enum: ["drinks", "snacks", "food", "others"], 
+        default: "others"
     },
     image: {
         type: String, 
-        // Default placeholder image if none is provided
-        default: "https://cdn-icons-png.flaticon.com/512/1160/1160358.png" 
+        default: null
+    },
+    // 👇 NUEVO CAMPO PARA EL FILTRO "MOST POPULAR"
+    isPopular: {
+        type: Boolean,
+        default: false
     }
 }, {
-    timestamps: true // Adds createdAt and updatedAt automatically
+    timestamps: true
 });
 
 export default mongoose.model("Product", productSchema);
