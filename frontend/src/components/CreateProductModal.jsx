@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { FiX, FiUploadCloud, FiStar } from "react-icons/fi"; // Added FiStar
+import { FiX, FiUploadCloud, FiStar } from "react-icons/fi";
 import axios from "axios";
 
 function CreateProductModal({ onClose, onSaved, productToEdit = null }) {
@@ -21,6 +21,7 @@ function CreateProductModal({ onClose, onSaved, productToEdit = null }) {
     if (productToEdit) {
       setValue("name", productToEdit.name);
       setValue("price", productToEdit.price);
+      setValue("stock", productToEdit.stock);
       setValue("category", productToEdit.category);
       setValue("isPopular", productToEdit.isPopular); // Load popular status
       setPreview(productToEdit.image);
@@ -35,6 +36,7 @@ function CreateProductModal({ onClose, onSaved, productToEdit = null }) {
       //ADD CAMP THE TEXT
       formData.append("name", data.name);
       formData.append("price", data.price);
+      formData.append("stock", data.stock);
       formData.append("category", data.category);
       formData.append("isPopular", data.isPopular); // Send boolean
 
@@ -91,6 +93,17 @@ function CreateProductModal({ onClose, onSaved, productToEdit = null }) {
                 <label style={labelStyle}>Price ($)</label>
                 <input type="number" step="0.01" {...register("price", { required: true })} style={inputStyle} placeholder="0.00" />
             </div>
+
+            <div style={{ flex: 1 }}>
+                <label style={labelStyle}>Daily Stock</label>
+                <input 
+                    type="number" 
+                    {...register("stock", { required: true, min: 0 })} 
+                    style={inputStyle} 
+                    placeholder="Qty" 
+                />
+            </div>
+
             <div style={{ flex: 1 }}>
                 <label style={labelStyle}>Category</label>
                 <select {...register("category")} style={inputStyle}>

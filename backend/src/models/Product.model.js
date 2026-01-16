@@ -15,9 +15,13 @@ const productSchema = new mongoose.Schema({
         required: true,
         default: 0
     },
+    stock: {
+        type: Number,
+        required: true,
+        default: 0 
+    },
     category: {
         type: String,
-        // 👇 AGREGAMOS LAS NUEVAS CATEGORÍAS AQUÍ
         enum: ["drinks", "snacks", "food", "others"], 
         default: "others"
     },
@@ -25,7 +29,6 @@ const productSchema = new mongoose.Schema({
         type: String, 
         default: null
     },
-    // 👇 NUEVO CAMPO PARA EL FILTRO "MOST POPULAR"
     isPopular: {
         type: Boolean,
         default: false

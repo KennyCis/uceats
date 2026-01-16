@@ -31,6 +31,20 @@ function ProductCard({ variant = "default", product, isAdmin = false, onDelete, 
     );
   }
 
+  // --- LOGIC FOR STOCK VISUALS ---
+  const stock = product.stock || 0; // Default to 0 if undefined
+  const isOutOfStock = stock === 0;
+  const isLowStock = stock > 0 && stock <= 5;
+
+  // Determine badge color based on stock level
+  const getBadgeStyle = () => {
+      if (isOutOfStock) return { bg: "#FED7D7", color: "#C53030", text: "Out of Stock" }; // Red
+      if (isLowStock) return { bg: "#FEEBC8", color: "#C05621", text: `Low Stock: ${stock}` }; // Orange
+      return { bg: "#C6F6D5", color: "#2F855A", text: `Stock: ${stock}` }; // Green
+  };
+
+  const badge = getBadgeStyle();
+
   // --- VARIANT: PRODUCT CARD ---
   return (
     <div style={{
@@ -44,12 +58,31 @@ function ProductCard({ variant = "default", product, isAdmin = false, onDelete, 
       textAlign: "center",
       position: "relative", // Needed for positioning buttons
       transition: "transform 0.2s",
-      minHeight: "280px"
+      minHeight: "280px",
+      // Visual cue for Out of Stock (Semi-transparent)
+      opacity: isOutOfStock ? 0.7 : 1, 
+      filter: isOutOfStock ? "grayscale(80%)" : "none" 
     }}>
       
+      {/* STOCK BADGE (Top Left) */}
+      <div style={{
+          position: "absolute",
+          top: "15px",
+          left: "15px",
+          backgroundColor: badge.bg,
+          color: badge.color,
+          padding: "4px 8px",
+          borderRadius: "6px",
+          fontSize: "11px",
+          fontWeight: "700",
+          zIndex: 10
+      }}>
+          {badge.text}
+      </div>
+
       {/* ADMIN ACTIONS (Edit & Delete) */}
       {isAdmin && (
-        <div style={{ position: "absolute", top: "15px", right: "15px", display: "flex", gap: "8px" }}>
+        <div style={{ position: "absolute", top: "15px", right: "15px", display: "flex", gap: "8px", zIndex: 20 }}>
             {/* Edit Button (Visual only for now) */}
             <button 
                 onClick={(e) => { e.stopPropagation(); onEdit(product); }} 
@@ -77,7 +110,7 @@ function ProductCard({ variant = "default", product, isAdmin = false, onDelete, 
       <img 
         src={product.image || "https://cdn-icons-png.flaticon.com/512/1160/1160358.png"} 
         alt={product.name} 
-        style={{ width: "120px", height: "120px", objectFit: "contain", marginBottom: "15px" }} 
+        style={{ width: "120px", height: "120px", objectFit: "contain", marginBottom: "15px", marginTop: "15px" }} 
       />
 
       {/* Info */}
