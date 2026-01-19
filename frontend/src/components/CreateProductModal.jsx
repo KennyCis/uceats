@@ -109,8 +109,8 @@ function CreateProductModal({ onClose, onSaved, productToEdit = null }) {
                 <select {...register("category")} style={inputStyle}>
                     <option value="others">Others</option> {/* Added Others */}
                     <option value="food">Food</option>
-                    <option value="drinks">Drinks</option> {/* Plural to match sidebar */}
-                    <option value="snacks">Snacks</option> {/* Plural to match sidebar */}
+                    <option value="drinks">Drinks</option>
+                    <option value="snacks">Snacks</option> 
                 </select>
             </div>
           </div>

@@ -2,12 +2,11 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
   FiGrid, FiCoffee, FiPackage, FiStar, FiDisc, 
-  FiHelpCircle
+  FiHelpCircle, FiClipboard 
 } from "react-icons/fi"; 
 import { MdOutlineFastfood } from "react-icons/md"; 
 import HelpModal from "./HelpModal"; 
 import { useAuth } from "../context/AuthContext";
-
 
 const SidebarItem = ({ to, icon: Icon, label, isActive, onClick }) => {
     const [isHovered, setIsHovered] = useState(false);
@@ -24,16 +23,13 @@ const SidebarItem = ({ to, icon: Icon, label, isActive, onClick }) => {
       transition: "all 0.2s ease-in-out",
       cursor: "pointer",
       
-    
       backgroundColor: isActive ? "var(--primary-dark)" : (isHovered ? "#F7FAFC" : "transparent"),
       color: isActive ? "var(--white)" : "var(--primary-dark)", 
-      
       
       transform: isHovered && !isActive ? "translateX(5px)" : "none",
       boxShadow: isHovered && !isActive ? "0 2px 8px rgba(0,0,0,0.05)" : (isActive ? "0 4px 12px rgba(0, 47, 108, 0.25)" : "none")
     };
   
-    
     if (to) {
         return (
             <Link 
@@ -65,13 +61,13 @@ function Sidebar() {
   const { user } = useAuth();
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   
-  
   const isActive = (path, queryParam = null) => {
     const searchParams = new URLSearchParams(location.search);
     const category = searchParams.get("category");
     const filter = searchParams.get("filter");
 
     if (path === "/home" && !queryParam && !location.search) return true;
+    if (path === "/orders") return location.pathname === "/orders"; // Simple check for orders
 
     if (queryParam) {
         if (queryParam.includes("category")) return category === queryParam.split("=")[1];
@@ -115,6 +111,7 @@ function Sidebar() {
             </h1>
         </div>
 
+        {/* --- MAIN MENU --- */}
         <div style={titleStyle}>MENU</div>
         
         <SidebarItem 
@@ -131,6 +128,20 @@ function Sidebar() {
             isActive={isActive("/home", "filter=popular")} 
         />
 
+        {/* --- ADMIN ONLY SECTION --- */}
+        {user?.role === "admin" && (
+            <>
+                <div style={titleStyle}>ADMINISTRATION</div>
+                <SidebarItem 
+                    to="/orders" 
+                    icon={FiClipboard} 
+                    label="Kitchen Orders" 
+                    isActive={isActive("/orders")} 
+                />
+            </>
+        )}
+
+        {/* --- CATEGORIES --- */}
         <div style={titleStyle}>CATEGORIES</div>
 
         <SidebarItem 
@@ -161,19 +172,14 @@ function Sidebar() {
             isActive={isActive("/home", "category=others")} 
         />
 
-        {/* HELP SECTION */}
+        {/* --- HELP SECTION --- */}
         <div style={{ marginTop: "40px", paddingTop: "20px", borderTop: "1px dashed #E2E8F0" }}>
             <SidebarItem 
                 onClick={() => setIsHelpOpen(true)}
                 icon={FiHelpCircle}
                 label="Help & Support"
-                isActive={false} // Siempre inactivo visualmente, solo hover
+                isActive={false} 
             />
-        </div>
-
-        {/* ESPACIO PARA ORDERS (Futuro) */}
-        <div style={{ marginTop: "20px" }}>
-             {/* Orders Pending... */}
         </div>
 
       </aside>

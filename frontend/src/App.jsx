@@ -4,8 +4,12 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
+import OrdersPage from "./pages/OrdersPage";
 import logo from "./assets/logo-uceats.png";
 import "./App.css";
+
+import { AuthProvider } from "./context/AuthContext"; 
+import { CartProvider } from "./context/CartContext";
 
 function AuthPage() {
   const [activeForm, setActiveForm] = useState("login");
@@ -43,18 +47,30 @@ function AuthPage() {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Rut Login/Register */}
-        <Route path="/" element={<AuthPage />} />
+      {/*1.Autentication (user) */}
+      <AuthProvider>
+        
+        {/*2. Market car */}
+        <CartProvider>
+        
+            <Routes>
+              {/* Rut Login/Register */}
+              <Route path="/" element={<AuthPage />} />
 
-        {/* Rut Home*/}
-        <Route path="/home" element={<HomePage />} />
+              {/* Rut Home */}
+              <Route path="/home" element={<HomePage />} />
 
-        {/*profile*/}
-        <Route path="/profile" element={<ProfilePage />} />
+              {/* Profile */}
+              <Route path="/profile" element={<ProfilePage />} />
 
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
+              {/* Orders */}
+              <Route path="/orders" element={<OrdersPage />} />
+
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+
+        </CartProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

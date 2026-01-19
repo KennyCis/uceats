@@ -5,8 +5,18 @@ import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import ProductCard from "../components/ProductCard";
 import CreateProductModal from "../components/CreateProductModal";
+import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext"; // 1. Import Hook
+import CartBubble from "../components/CartBubble"; // 2. Import Bubble
+import CartDrawer from "../components/CartDrawer";
 
 function HomePage() {
+  // Get 'addToCart' directly from Context
+  const { addToCart } = useCart();
+  const { user } = useAuth(); 
+
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const [editingProduct, setEditingProduct] = useState(null); 
@@ -16,13 +26,16 @@ function HomePage() {
   const categoryFilter = searchParams.get("category");
   const specialFilter = searchParams.get("filter");
 
-  //search data
+  // Determine if user is Admin
+  const isAdmin = user?.role === "admin";
+
+  // Search/Fetch data
   const fetchProducts = async () => {
     try {
       const response = await axios.get("http://localhost:3000/api/products");
       setProducts(response.data);
     } catch (error) {
-      //silent
+      // silent error
     }
   };
 
@@ -30,27 +43,25 @@ function HomePage() {
     fetchProducts();
   }, []);
 
-  // delete
+  // Delete product
   const handleDelete = async (id) => {
     try {
         await axios.delete(`http://localhost:3000/api/products/${id}`);
         fetchProducts(); 
-        //no alert
     } catch (error) {
-        console.error("Error deleting:", error);
-        //silent error
+        // silent error
     }
   };
 
-  //preparing edit
+  // Prepare Edit
   const handleEdit = (product) => {
-    setEditingProduct(product); //save product
+    setEditingProduct(product); 
     setIsModalOpen(true);      
   };
 
-  // clean
+  // Open Create Modal
   const openCreateModal = () => {
-    setEditingProduct(null); // clean info 
+    setEditingProduct(null); 
     setIsModalOpen(true);
   };
 
@@ -100,19 +111,23 @@ function HomePage() {
             gap: "25px" 
           }}>
             
-            {/* Card ADD - Only show if NO filter is active */}
-            <div onClick={openCreateModal}>
-               <ProductCard variant="add" />
-            </div>
+            {/* Card ADD - Only show if user is ADMIN */}
+            {isAdmin && (
+                <div onClick={openCreateModal}>
+                   <ProductCard variant="add" />
+                </div>
+            )}
 
             {/* Render Filtered Products */}
             {filteredProducts.map(p => (
               <ProductCard 
                   key={p._id} 
                   product={p} 
-                  isAdmin={true} 
+                  isAdmin={isAdmin} 
                   onDelete={() => handleDelete(p._id)} 
                   onEdit={handleEdit} 
+                  // HERE IS THE CHANGE: Use context function
+                  onAddToCart={() => addToCart(p)}
               />
             ))}
 
@@ -120,7 +135,7 @@ function HomePage() {
             {filteredProducts.length === 0 && (
                 <div style={{ gridColumn: "1 / -1", textAlign: "center", color: "#A0AEC0", marginTop: "50px" }}>
                     <h3>No products found in this category.</h3>
-                    <p>Add a new one!</p>
+                    {isAdmin && <p>Add a new one!</p>}
                 </div>
             )}
 
@@ -128,7 +143,7 @@ function HomePage() {
         </main>
       </div>
 
-      {/* Modal */}
+      {/* Modal - Only Admins can trigger this via the Add Card */}
       {isModalOpen && (
         <CreateProductModal 
           onClose={() => setIsModalOpen(false)} 
@@ -139,6 +154,18 @@ function HomePage() {
           }}
         />
       )}
+
+      {!isAdmin && ( // open drawer
+        <div onClick={() => setIsCartOpen(true)}>
+             <CartBubble />
+        </div>
+      )}
+
+      {/* Rende Drawer */}
+      <CartDrawer 
+        isOpen={isCartOpen} 
+        onClose={() => setIsCartOpen(false)} 
+      />
 
     </div>
   );

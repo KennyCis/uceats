@@ -1,29 +1,20 @@
-import { FiPlus, FiEdit, FiTrash2 } from "react-icons/fi";
+import { useState } from "react";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
+import { FiPlus } from "react-icons/fi"; // Only for the "Add New" card
 
-// We added 'onDelete' and 'onEdit' props
-function ProductCard({ variant = "default", product, isAdmin = false, onDelete, onEdit }) {
-  
-  //VARIANT: ADD NEW PRODUCT
+function ProductCard({ variant = "default", product, isAdmin = false, onDelete, onEdit, onAddToCart }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isClicked, setIsClicked] = useState(false); // For visual click feedback
+
+  //VARIANT: ADD NEW PRODUCT (Static, for Admin) 
   if (variant === "add") {
     return (
       <div style={{
-        height: "100%",
-        minHeight: "280px",
-        border: "2px dashed #CBD5E0",
-        borderRadius: "20px",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        cursor: "pointer",
-        color: "#718096",
-        backgroundColor: "#F7FAFC",
-        transition: "all 0.2s"
+        height: "100%", minHeight: "280px", border: "2px dashed #CBD5E0", borderRadius: "20px",
+        display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center",
+        cursor: "pointer", color: "#718096", backgroundColor: "#F7FAFC"
       }}>
-        <div style={{
-          width: "50px", height: "50px", borderRadius: "50%",
-          backgroundColor: "#E2E8F0", display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "15px"
-        }}>
+        <div style={{ width: "50px", height: "50px", borderRadius: "50%", backgroundColor: "#E2E8F0", display: "flex", justifyContent: "center", alignItems: "center", marginBottom: "15px" }}>
           <FiPlus size={24} />
         </div>
         <span style={{ fontWeight: "600" }}>Add New Product</span>
@@ -31,96 +22,86 @@ function ProductCard({ variant = "default", product, isAdmin = false, onDelete, 
     );
   }
 
-  // --- LOGIC FOR STOCK VISUALS ---
-  const stock = product.stock || 0; // Default to 0 if undefined
+  // --- LOGIC ---
+  const stock = product.stock || 0;
   const isOutOfStock = stock === 0;
   const isLowStock = stock > 0 && stock <= 5;
+  const isClient = !isAdmin;
 
-  // Determine badge color based on stock level
-  const getBadgeStyle = () => {
-      if (isOutOfStock) return { bg: "#FED7D7", color: "#C53030", text: "Out of Stock" }; // Red
-      if (isLowStock) return { bg: "#FEEBC8", color: "#C05621", text: `Low Stock: ${stock}` }; // Orange
-      return { bg: "#C6F6D5", color: "#2F855A", text: `Stock: ${stock}` }; // Green
+  // Handle Card Click (Only for Client & In Stock)
+  const handleCardClick = () => {
+    if (isClient && !isOutOfStock) {
+        // Visual effect
+        setIsClicked(true);
+        setTimeout(() => setIsClicked(false), 150); // Reset after 150ms
+        
+        // Add to cart action
+        if (onAddToCart) onAddToCart(product);
+    }
   };
 
+  // Dynamic Styles
+  const getBadgeStyle = () => {
+      if (isOutOfStock) return { bg: "#FED7D7", color: "#C53030", text: "Sold Out" };
+      if (isLowStock) return { bg: "#FEEBC8", color: "#C05621", text: `Low: ${stock}` };
+      return { bg: "#C6F6D5", color: "#2F855A", text: `Stock: ${stock}` };
+  };
   const badge = getBadgeStyle();
 
-  // --- VARIANT: PRODUCT CARD ---
-  return (
-    <div style={{
+  const cardStyle = {
       backgroundColor: "white",
       borderRadius: "20px",
       padding: "20px",
-      boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05)",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       textAlign: "center",
-      position: "relative", // Needed for positioning buttons
-      transition: "transform 0.2s",
+      position: "relative",
       minHeight: "280px",
-      // Visual cue for Out of Stock (Semi-transparent)
-      opacity: isOutOfStock ? 0.7 : 1, 
-      filter: isOutOfStock ? "grayscale(80%)" : "none" 
-    }}>
+      opacity: isOutOfStock ? 0.6 : 1,
+      filter: isOutOfStock ? "grayscale(90%)" : "none",
+      transition: "all 0.2s ease-in-out",
       
-      {/* STOCK BADGE (Top Left) */}
-      <div style={{
-          position: "absolute",
-          top: "15px",
-          left: "15px",
-          backgroundColor: badge.bg,
-          color: badge.color,
-          padding: "4px 8px",
-          borderRadius: "6px",
-          fontSize: "11px",
-          fontWeight: "700",
-          zIndex: 10
-      }}>
+      // INTERACTION STYLES:
+      cursor: (isClient && !isOutOfStock) ? "pointer" : "default",
+      // If Client Hover -> Blue Border. If Clicked -> Scale down slightly
+      border: (isClient && isHovered && !isOutOfStock) ? "2px solid var(--primary-blue)" : "2px solid transparent",
+      transform: isClicked ? "scale(0.95)" : (isHovered && isClient && !isOutOfStock ? "translateY(-5px)" : "none"),
+      boxShadow: (isClient && isHovered && !isOutOfStock) ? "0 15px 30px rgba(0,0,0,0.1)" : "0 10px 15px -3px rgba(0, 0, 0, 0.05)"
+  };
+
+  return (
+    <div 
+        style={cardStyle}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onClick={handleCardClick}
+    >
+      
+      {/* STOCK BADGE */}
+      <div style={{ position: "absolute", top: "15px", left: "15px", backgroundColor: badge.bg, color: badge.color, padding: "4px 8px", borderRadius: "6px", fontSize: "11px", fontWeight: "700", zIndex: 10 }}>
           {badge.text}
       </div>
 
-      {/* ADMIN ACTIONS (Edit & Delete) */}
+      {/* ADMIN ACTIONS (Stop Propagation to prevent adding to cart) */}
       {isAdmin && (
         <div style={{ position: "absolute", top: "15px", right: "15px", display: "flex", gap: "8px", zIndex: 20 }}>
-            {/* Edit Button (Visual only for now) */}
-            <button 
-                onClick={(e) => { e.stopPropagation(); onEdit(product); }} 
-                style={{ border: "none", background: "#EDF2F7", borderRadius: "8px", padding: "6px", cursor: "pointer", color: "#2B6CB0" }}
-            >
+            <button onClick={(e) => { e.stopPropagation(); onEdit(product); }} style={{ border: "none", background: "#EDF2F7", borderRadius: "8px", padding: "6px", cursor: "pointer", color: "#2B6CB0" }}>
                 <FiEdit size={16} />
             </button>
-            
-            {/* Delete Button */}
-            <button 
-                onClick={(e) => { 
-                    e.stopPropagation(); // Prevents clicking the card background
-                    if(window.confirm("Are you sure you want to delete this product?")) {
-                        onDelete(product._id); 
-                    }
-                }} 
-                style={{ border: "none", background: "#FED7D7", borderRadius: "8px", padding: "6px", cursor: "pointer", color: "#C53030" }}
-            >
+            <button onClick={(e) => { e.stopPropagation(); if(window.confirm("Delete?")) onDelete(product._id); }} style={{ border: "none", background: "#FED7D7", borderRadius: "8px", padding: "6px", cursor: "pointer", color: "#C53030" }}>
                 <FiTrash2 size={16} />
             </button>
         </div>
       )}
 
-      {/* Image */}
-      <img 
-        src={product.image || "https://cdn-icons-png.flaticon.com/512/1160/1160358.png"} 
-        alt={product.name} 
-        style={{ width: "120px", height: "120px", objectFit: "contain", marginBottom: "15px", marginTop: "15px" }} 
-      />
+      {/* PRODUCT IMAGE */}
+      <img src={product.image || "https://cdn-icons-png.flaticon.com/512/1160/1160358.png"} alt={product.name} style={{ width: "120px", height: "120px", objectFit: "contain", marginBottom: "15px", marginTop: "15px" }} />
 
-      {/* Info */}
+      {/* INFO */}
       <h3 style={{ margin: "0 0 5px 0", fontSize: "18px", color: "#2D3748" }}>{product.name}</h3>
-      <span style={{ fontSize: "14px", color: "#718096", textTransform: "capitalize", marginBottom: "10px", display: "block" }}>
-        {product.category}
-      </span>
-      <span style={{ fontSize: "20px", fontWeight: "bold", color: "#003366" }}>
-        ${product.price.toFixed(2)}
-      </span>
+      <span style={{ fontSize: "14px", color: "#718096", textTransform: "capitalize", marginBottom: "10px", display: "block" }}>{product.category}</span>
+      <span style={{ fontSize: "20px", fontWeight: "bold", color: "#003366" }}>${product.price.toFixed(2)}</span>
 
     </div>
   );

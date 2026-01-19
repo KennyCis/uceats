@@ -5,6 +5,7 @@ import path from 'path';
 import { connectDB } from "./db.js";
 import authRoutes from "./routes/auth.routes.js";
 import productRoutes from "./routes/products.routes.js";
+import orderRoutes from "./routes/orders.routes.js";
 
 // Initialize dotenv to use .env variables
 dotenv.config();
@@ -24,10 +25,11 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 app.use("/api", authRoutes);
 app.use("/api", productRoutes)
+app.use("/api/orders", orderRoutes);
 
 // Test Route
 app.get('/', (req, res) => {
-  res.json({ message: "Welcome to UCEats API 🍔" });
+  res.json({ message: "Welcome to UCEats API" });
 });
 
 // Port configuration
