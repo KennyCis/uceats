@@ -33,14 +33,16 @@ router.post("/", async (req, res) => {
 
         const savedOrder = await newOrder.save();
 
-        // 3. (OPCIONAL AQUÍ) Descontar Stock
-        // Nota: En sistemas reales con Stripe, el stock se descuenta SOLO si el pago pasa.
-        // Lo dejaremos comentado hasta integrar Stripe.
-        /*
+        // Descot Stock
         for (const item of cart) {
-            await Product.findByIdAndUpdate(item._id, { $inc: { stock: -item.quantity } });
+            await Product.findByIdAndUpdate(item._id, { 
+                $inc: { stock: -item.quantity } 
+            });
         }
-        */
+
+        //SOCKET EMIT
+        // "server:neworder" 
+        req.io.emit("server:neworder", savedOrder); 
 
         res.json(savedOrder);
 

@@ -45,8 +45,7 @@ function CartBubble() {
   return (
     <div 
         style={bubbleStyle} 
-        className="hover-scale" // You can add a simple CSS class for hover later
-        onClick={() => alert("Open Cart Summary!")} // Next Step: Open Drawer
+        className="hover-scale" 
     >
       <FiShoppingCart size={28} />
       

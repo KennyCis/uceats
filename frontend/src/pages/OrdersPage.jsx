@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import io from "socket.io-client";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import { FiClock, FiCheckCircle, FiTrash2 } from "react-icons/fi"; 
+
+// Initialize Socket connection
+const socket = io("http://localhost:3000");
 
 function OrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -19,15 +23,33 @@ function OrdersPage() {
 
   useEffect(() => {
     fetchOrders();
-    const interval = setInterval(fetchOrders, 5000); // Polling every 5s
-    return () => clearInterval(interval);
+
+    // REAL TIME LISTENER
+    socket.on("server:neworder", (newOrder) => {
+        // Add new order to the top of the list
+        setOrders((prevOrders) => [newOrder, ...prevOrders]);
+        
+        // Notification Sound (Optional)
+        // Make sure to put a 'notification.mp3' file in your 'frontend/public' folder
+        try {
+            const audio = new Audio('/notification.mp3');
+            audio.play().catch(e => console.log("Audio play failed (user interaction needed first)"));
+        } catch (e) {
+            // ignore audio error
+        }
+    });
+
+    // Cleanup listener on unmount
+    return () => {
+        socket.off("server:neworder");
+    };
   }, []);
 
   // Update Status
   const handleStatusChange = async (orderId, newStatus) => {
     try {
         await axios.patch(`http://localhost:3000/api/orders/${orderId}`, { status: newStatus });
-        fetchOrders(); 
+        fetchOrders(); // Refresh to ensure data consistency
     } catch (error) {
         console.error(error);
     }
