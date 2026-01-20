@@ -9,6 +9,7 @@ import { Server as SocketServer } from "socket.io";
 import authRoutes from "./routes/auth.routes.js";
 import productRoutes from "./routes/products.routes.js";
 import orderRoutes from "./routes/orders.routes.js";
+import paymentRoutes from "./routes/payments.routes.js";
 
 dotenv.config();
 
@@ -27,7 +28,7 @@ const io = new SocketServer(server, {
 
 connectDB();
 
-
+//Routes
 app.use(cors({
     origin: allowedOrigins, 
     credentials: true                
@@ -41,10 +42,10 @@ app.use((req, res, next) => {
     next();
 });
 
-// Routes
 app.use("/api", authRoutes);
 app.use("/api", productRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/payments", paymentRoutes);
 
 io.on("connection", (socket) => {
     console.log(`⚡ Client connected: ${socket.id}`);
