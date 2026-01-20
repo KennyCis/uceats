@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import OrdersPage from "./pages/OrdersPage";
+import ClientOrdersPage from "./pages/ClientOrdersPage";
 import logo from "./assets/logo-uceats.png";
 import "./App.css";
 
@@ -65,6 +66,9 @@ function App() {
 
               {/* Orders */}
               <Route path="/orders" element={<OrdersPage />} />
+
+              {/* My Orders */}
+              <Route path="/my-orders" element={<ClientOrdersPage />} />
 
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>

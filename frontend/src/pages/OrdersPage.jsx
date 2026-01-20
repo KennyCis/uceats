@@ -11,7 +11,7 @@ const socket = io("http://localhost:3000");
 function OrdersPage() {
   const [orders, setOrders] = useState([]);
 
-  // Fetch Orders
+  // Fetch Orders (Initial Load)
   const fetchOrders = async () => {
     try {
       const response = await axios.get("http://localhost:3000/api/orders");
@@ -26,20 +26,10 @@ function OrdersPage() {
 
     // REAL TIME LISTENER
     socket.on("server:neworder", (newOrder) => {
-        // Add new order to the top of the list
+        // Just add the new order to the list immediately
         setOrders((prevOrders) => [newOrder, ...prevOrders]);
-        
-        // Notification Sound (Optional)
-        // Make sure to put a 'notification.mp3' file in your 'frontend/public' folder
-        try {
-            const audio = new Audio('/notification.mp3');
-            audio.play().catch(e => console.log("Audio play failed (user interaction needed first)"));
-        } catch (e) {
-            // ignore audio error
-        }
     });
 
-    // Cleanup listener on unmount
     return () => {
         socket.off("server:neworder");
     };
@@ -49,7 +39,7 @@ function OrdersPage() {
   const handleStatusChange = async (orderId, newStatus) => {
     try {
         await axios.patch(`http://localhost:3000/api/orders/${orderId}`, { status: newStatus });
-        fetchOrders(); // Refresh to ensure data consistency
+        fetchOrders(); 
     } catch (error) {
         console.error(error);
     }
@@ -80,14 +70,23 @@ function OrdersPage() {
         <Header />
         
         <main style={{ padding: "40px 80px" }}>
-            <div style={{ marginBottom: "30px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h1 style={{ margin: 0, color: "var(--primary-dark)", fontSize: "28px" }}>Kitchen Orders 👨‍🍳</h1>
-                <button 
-                    onClick={fetchOrders} 
-                    style={{ padding: "10px 20px", background: "var(--primary-dark)", color: "white", border: "none", borderRadius: "8px", cursor: "pointer" }}
-                >
-                    Refresh
-                </button>
+            
+            {/* HEADER WITHOUT REFRESH BUTTON */}
+            <div style={{ marginBottom: "30px", display: "flex", alignItems: "center", gap: "15px" }}>
+                <h1 style={{ margin: 0, color: "var(--primary-dark)", fontSize: "28px" }}>
+                    Kitchen Orders 👨‍🍳
+                </h1>
+                
+                {/* Live Indicator */}
+                <span style={{ 
+                    backgroundColor: "#C6F6D5", color: "#22543D", 
+                    padding: "5px 12px", borderRadius: "20px", 
+                    fontSize: "12px", fontWeight: "bold",
+                    display: "flex", alignItems: "center", gap: "6px"
+                }}>
+                    <div style={{ width: "8px", height: "8px", backgroundColor: "#48BB78", borderRadius: "50%" }}></div>
+                    Live
+                </span>
             </div>
 
             {/* ORDERS GRID */}

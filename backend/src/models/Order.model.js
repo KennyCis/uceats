@@ -1,49 +1,38 @@
 import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema({
-    // user client
     client: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "User", 
+        ref: "User",
         required: true
     },
-    // List products
     items: [
         {
-            product: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Product", 
-                required: true
-            },
-            name: String, 
-            price: Number, 
-            quantity: {
-                type: Number,
-                required: true
-            }
+            product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+            name: String,
+            price: Number,
+            quantity: Number
         }
     ],
-
     total: {
         type: Number,
         required: true
     },
-    // CAMP TRIPE/PAYPAL
-    isPaid: {
-        type: Boolean,
-        default: false // false Stripe confirm
-    },
-    paymentId: {
-        type: String, // SAVE ID
-        default: null
-    },
     status: {
         type: String,
-        enum: ["pending", "processing", "completed", "cancelled"], 
-        default: "pending"
+        default: "pending", // pending, completed
+    },
+    isPaid: {
+        type: Boolean,
+        default: false
+    },
+    // 👇 NUEVO CAMPO: Para ocultar la orden al Admin sin borrarla
+    archived: {
+        type: Boolean,
+        default: false
     }
 }, {
-    timestamps: true 
+    timestamps: true
 });
 
 export default mongoose.model("Order", orderSchema);
