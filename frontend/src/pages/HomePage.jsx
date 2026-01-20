@@ -1,22 +1,24 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import io from "socket.io-client"; // Import Socket.io
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import ProductCard from "../components/ProductCard";
 import CreateProductModal from "../components/CreateProductModal";
 import { useAuth } from "../context/AuthContext";
-import { useCart } from "../context/CartContext"; // 1. Import Hook
-import CartBubble from "../components/CartBubble"; // 2. Import Bubble
+import { useCart } from "../context/CartContext"; 
+import CartBubble from "../components/CartBubble"; 
 import CartDrawer from "../components/CartDrawer";
 
+// Initialize Socket connection
+const socket = io("http://localhost:3000");
+
 function HomePage() {
-  // Get 'addToCart' directly from Context
   const { addToCart } = useCart();
   const { user } = useAuth(); 
 
   const [isCartOpen, setIsCartOpen] = useState(false);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const [editingProduct, setEditingProduct] = useState(null); 
@@ -26,7 +28,6 @@ function HomePage() {
   const categoryFilter = searchParams.get("category");
   const specialFilter = searchParams.get("filter");
 
-  // Determine if user is Admin
   const isAdmin = user?.role === "admin";
 
   // Search/Fetch data
@@ -41,6 +42,33 @@ function HomePage() {
 
   useEffect(() => {
     fetchProducts();
+
+    // Real-time Stock Update Listener
+    socket.on("server:neworder", (newOrder) => {
+        setProducts((currentProducts) => 
+            currentProducts.map((product) => {
+                // Find if the current product exists in the new order items
+                // item.product corresponds to the product ID in the order model
+                const purchasedItem = newOrder.items.find(
+                    (item) => item.product === product._id || item.product._id === product._id
+                );
+
+                // If found, decrease the local stock
+                if (purchasedItem) {
+                    return { 
+                        ...product, 
+                        stock: Math.max(0, product.stock - purchasedItem.quantity) 
+                    };
+                }
+                return product;
+            })
+        );
+    });
+
+    // Cleanup listener on unmount
+    return () => {
+        socket.off("server:neworder");
+    };
   }, []);
 
   // Delete product
@@ -65,7 +93,7 @@ function HomePage() {
     setIsModalOpen(true);
   };
 
-  // 2. FILTERING LOGIC
+  // FILTERING LOGIC
   const filteredProducts = products.filter(p => {
     // A. Filter by Popularity
     if (specialFilter === "popular") {
@@ -79,7 +107,7 @@ function HomePage() {
     return true;
   });
 
-  // 3. Dynamic Title Helper
+  // Dynamic Title Helper
   const getPageTitle = () => {
     if (specialFilter === "popular") return "Most Popular ⭐";
     if (categoryFilter) return categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1);
@@ -126,7 +154,6 @@ function HomePage() {
                   isAdmin={isAdmin} 
                   onDelete={() => handleDelete(p._id)} 
                   onEdit={handleEdit} 
-                  // HERE IS THE CHANGE: Use context function
                   onAddToCart={() => addToCart(p)}
               />
             ))}
@@ -161,7 +188,7 @@ function HomePage() {
         </div>
       )}
 
-      {/* Rende Drawer */}
+      {/* Render Drawer */}
       <CartDrawer 
         isOpen={isCartOpen} 
         onClose={() => setIsCartOpen(false)} 
