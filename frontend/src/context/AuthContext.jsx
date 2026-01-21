@@ -1,4 +1,5 @@
 import { createContext, useState, useContext, useEffect } from "react";
+import axios from "axios"; // Ensure axios is installed
 
 const AuthContext = createContext();
 
@@ -16,8 +17,9 @@ export const AuthProvider = ({ children }) => {
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState(!!user);
+  const [errors, setErrors] = useState([]);
 
-  //save user
+  // Save user to state and local storage
   const signin = (userData) => {
     setUser(userData);
     setIsAuthenticated(true);
@@ -27,6 +29,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
+    setErrors([]);
     localStorage.removeItem("uceats_user");
   };
 
@@ -35,8 +38,33 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("uceats_user", JSON.stringify(newUserData));
   };
 
+  // --- NEW: GOOGLE LOGIN LOGIC ---
+  const loginWithGoogle = async (googleToken) => {
+    try {
+        // Send the Google token to our Backend
+        const res = await axios.post("http://localhost:3000/api/google", { 
+            token: googleToken 
+        });
+        
+        // If backend accepts it, sign the user in
+        signin(res.data);
+    } catch (error) {
+        console.error("Google Auth Error:", error);
+        setErrors([error.response?.data?.message || "Google Login Failed"]);
+        throw error; // Rethrow to handle UI changes in the component
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, signin, logout, updateUser, isAuthenticated }}>
+    <AuthContext.Provider value={{ 
+        user, 
+        signin, 
+        logout, 
+        updateUser, 
+        isAuthenticated, 
+        loginWithGoogle, // Export the function
+        errors 
+    }}>
       {children}
     </AuthContext.Provider>
   );

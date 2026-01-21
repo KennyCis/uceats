@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { register, login, updateProfile } from "../controllers/auth.controller.js";
+import {
+  register,
+  login,
+  updateProfile,
+  googleLogin,
+} from "../controllers/auth.controller.js";
 import { upload } from "../middlewares/upload.middleware.js";
 
 const router = Router();
@@ -33,6 +38,32 @@ const router = Router();
  *         description: User not found or invalid password
  */
 router.post("/login", login);
+
+/**
+ * @swagger
+ * /google:
+ *   post:
+ *     summary: Login with Google (Auto-Register)
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - token
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: Google ID Token received from frontend
+ *     responses:
+ *       200:
+ *         description: Login successful (returns App JWT)
+ *       400:
+ *         description: Google authentication failed
+ */
+router.post("/google", googleLogin);
 
 /**
  * @swagger

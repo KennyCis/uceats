@@ -54,6 +54,13 @@ function ClientOrdersPage() {
               <FiClock /> Preparing...
           </span>
       );
+
+      if (status === "in-progress") return (
+          <span style={{ backgroundColor: "#BEE3F8", color: "#3182CE", padding: "5px 10px", borderRadius: "20px", fontSize: "12px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "5px" }}>
+              <FiPackage /> Cooking...
+          </span>
+      );
+
       if (status === "completed") return (
           <span style={{ backgroundColor: "#C6F6D5", color: "#2F855A", padding: "5px 10px", borderRadius: "20px", fontSize: "12px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "5px" }}>
               <FiCheckCircle /> Completed
@@ -61,8 +68,8 @@ function ClientOrdersPage() {
       );
   };
 
-  // 👇 SEPARATE ORDERS LOGIC
-  const activeOrders = orders.filter(o => o.status === "pending");
+  //SEPARATE ORDERS LOGIC
+  const activeOrders = orders.filter(o => o.status === "pending" || o.status === "in-progress");
   const pastOrders = orders.filter(o => o.status === "completed");
 
   return (
