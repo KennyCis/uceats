@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
   FiGrid, FiCoffee, FiPackage, FiStar, FiDisc, 
-  FiHelpCircle, FiClipboard, FiShoppingBag 
+  FiHelpCircle, FiClipboard, FiShoppingBag, FiPieChart 
 } from "react-icons/fi"; 
 import { MdOutlineFastfood } from "react-icons/md"; 
 import HelpModal from "./HelpModal"; 
@@ -67,6 +67,7 @@ function Sidebar() {
     if (path === "/home" && !queryParam && !location.search) return true;
     if (path === "/orders") return location.pathname === "/orders"; 
     if (path === "/my-orders") return location.pathname === "/my-orders"; 
+    if (path === "/dashboard") return location.pathname === "/dashboard"; 
 
     if (queryParam) {
         if (queryParam.includes("category")) return category === queryParam.split("=")[1];
@@ -104,38 +105,91 @@ function Sidebar() {
             </h1>
         </div>
 
-        <div style={titleStyle}>MENU</div>
-        
-        <SidebarItem to="/home" icon={FiGrid} label="All Products" isActive={isActive("/home")} />
-        <SidebarItem to="/home?filter=popular" icon={FiStar} label="Most Popular" isActive={isActive("/home", "filter=popular")} />
-
-        {/* 👇 MY ORDERS: HIDDEN FOR ADMIN */}
-        {user?.role !== "admin" && (
-            <SidebarItem 
-                to="/my-orders" 
-                icon={FiShoppingBag} 
-                label="My Orders" 
-                isActive={isActive("/my-orders")} 
-            />
-        )}
-
-        {/* ADMIN ONLY */}
+        {/* 1. ADMINISTRATION SECTION (TOP - ONLY FOR ADMIN) */}
         {user?.role === "admin" && (
             <>
                 <div style={titleStyle}>ADMINISTRATION</div>
-                <SidebarItem to="/orders" icon={FiClipboard} label="Kitchen Orders" isActive={isActive("/orders")} />
+                <SidebarItem 
+                    to="/dashboard" 
+                    icon={FiPieChart} 
+                    label="Overview" 
+                    isActive={isActive("/dashboard")} 
+                />
+                <SidebarItem 
+                    to="/orders" 
+                    icon={FiClipboard} 
+                    label="Kitchen Orders" 
+                    isActive={isActive("/orders")} 
+                />
             </>
         )}
 
+        {/* 2. PERSONAL SECTION (TOP - ONLY FOR CLIENTS) */}
+        {user?.role !== "admin" && (
+            <>
+                <div style={titleStyle}>PERSONAL</div>
+                <SidebarItem 
+                    to="/my-orders" 
+                    icon={FiShoppingBag} 
+                    label="My Orders" 
+                    isActive={isActive("/my-orders")} 
+                />
+            </>
+        )}
+
+        {/* 3. GENERAL MENU (FOR EVERYONE) */}
+        <div style={titleStyle}>MENU</div>
+        
+        <SidebarItem 
+            to="/home" 
+            icon={FiGrid} 
+            label="All Products" 
+            isActive={isActive("/home")} 
+        />
+        
+        <SidebarItem 
+            to="/home?filter=popular" 
+            icon={FiStar} 
+            label="Most Popular" 
+            isActive={isActive("/home", "filter=popular")} 
+        />
+
+        {/* 4. CATEGORIES */}
         <div style={titleStyle}>CATEGORIES</div>
 
-        <SidebarItem to="/home?category=food" icon={MdOutlineFastfood} label="Food" isActive={isActive("/home", "category=food")} />
-        <SidebarItem to="/home?category=drinks" icon={FiCoffee} label="Drinks" isActive={isActive("/home", "category=drinks")} />
-        <SidebarItem to="/home?category=snacks" icon={FiPackage} label="Snacks" isActive={isActive("/home", "category=snacks")} />
-        <SidebarItem to="/home?category=others" icon={FiDisc} label="Others" isActive={isActive("/home", "category=others")} />
+        <SidebarItem 
+            to="/home?category=food" 
+            icon={MdOutlineFastfood} 
+            label="Food" 
+            isActive={isActive("/home", "category=food")} 
+        />
+        <SidebarItem 
+            to="/home?category=drinks" 
+            icon={FiCoffee} 
+            label="Drinks" 
+            isActive={isActive("/home", "category=drinks")} 
+        />
+        <SidebarItem 
+            to="/home?category=snacks" 
+            icon={FiPackage} 
+            label="Snacks" 
+            isActive={isActive("/home", "category=snacks")} 
+        />
+        <SidebarItem 
+            to="/home?category=others" 
+            icon={FiDisc} 
+            label="Others" 
+            isActive={isActive("/home", "category=others")} 
+        />
 
-        <div style={{ marginTop: "20px", paddingTop: "10px", borderTop: "1px dashed #E2E8F0" }}>
-            <SidebarItem onClick={() => setIsHelpOpen(true)} icon={FiHelpCircle} label="Help & Support" isActive={false} />
+        {/* FOOTER */}
+        <div style={{ marginTop: "40px", paddingTop: "20px", borderTop: "1px dashed #E2E8F0" }}>
+            <SidebarItem 
+                onClick={() => setIsHelpOpen(true)} 
+                icon={FiHelpCircle} 
+                label="Help & Support" 
+                isActive={false} 
+            />
         </div>
 
       </aside>

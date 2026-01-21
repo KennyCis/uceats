@@ -2,61 +2,67 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
-import { connectDB } from "./db.js";
 import http from "http"; 
 import { Server as SocketServer } from "socket.io"; 
+import { connectDB } from "./db.js";
 
+// Routes Imports
 import authRoutes from "./routes/auth.routes.js";
 import productRoutes from "./routes/products.routes.js";
 import orderRoutes from "./routes/orders.routes.js";
 import paymentRoutes from "./routes/payments.routes.js";
+import statsRoutes from "./routes/stats.routes.js";
 
 dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
 
+// Allowed domains for CORS (Frontend)
 const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
 
+// Socket.io Configuration
 const io = new SocketServer(server, {
     cors: {
         origin: allowedOrigins, 
-        methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+        methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true
     }
 });
 
+// Database Connection
 connectDB();
 
-//Routes
+// Middlewares
 app.use(cors({
     origin: allowedOrigins, 
-    credentials: true                
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"]
 }));
 
 app.use(express.json());
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
+// Inject Socket.io into request
 app.use((req, res, next) => {
     req.io = io;
     next();
 });
 
+// API Routes
 app.use("/api", authRoutes);
-app.use("/api", productRoutes);
+app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/stats", statsRoutes);
 
-io.on("connection", (socket) => {
-    console.log(`⚡ Client connected: ${socket.id}`);
-});
-
+// Root Endpoint
 app.get('/', (req, res) => {
-  res.json({ message: "Welcome to UCEats API" });
+    res.json({ message: "Welcome to UCEats API" });
 });
 
+// Server Initialization
 const PORT = process.env.PORT || 3000;
-
 server.listen(PORT, () => {
-  console.log(`UCEats server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
