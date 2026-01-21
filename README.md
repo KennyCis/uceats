@@ -1,160 +1,231 @@
-# 🍔 UCEats - UCE Bar Automation System
+# UCEats - University Bar Automation System
 
-**UCEats** is a Full Stack web application designed to modernize and manage the bars and cafeterias at the Universidad Central del Ecuador (UCE). It allows administrators to manage product inventory (food, drinks, snacks) through an intuitive interface with real image upload support.
+**UCEats** is a comprehensive Full Stack web application engineered to modernize the management and service delivery of bars and cafeterias at the Universidad Central del Ecuador (UCE). It facilitates inventory management, order processing, and payment integration through a secure, role-based interface.
 
----
-
-## 🚀 Tech Stack
-
-This project uses a microservices-based architecture containerized with **Docker**.
-
-### 💻 Frontend (Client)
-Built with **React + Vite** for a fast and reactive user experience.
-* **React 18:** Main UI library.
-* **React Hook Form:** Efficient form handling and validation.
-* **Axios:** HTTP client for server communication (FormData support).
-* **React Icons:** Vector icons package.
-* **CSS Modules / Inline:** Custom styling with CSS variables.
-
-### 🛠️ Backend (Server)
-RESTful API built on **Node.js**.
-* **Express.js:** Minimalist and robust web framework.
-* **Mongoose:** ODM for data modeling in MongoDB.
-* **Multer:** Middleware for handling file uploads (images).
-* **Cors:** Cross-origin access management.
-* **Morgan:** HTTP request logger for development.
-* **Dotenv:** Environment variable management.
-
-### 🗄️ Database
-* **MongoDB:** NoSQL document-oriented database (data persistence).
-
-### 🐳 DevOps & Infrastructure
-* **Docker:** Service containerization.
-* **Docker Compose:** Container orchestration (Frontend, Backend, DB).
+The system bridges the gap between kitchen staff and students using real-time communication protocols and secure authentication standards.
 
 ---
 
-## ✨ Current Features (MVP)
+## Technical Architecture
 
-### Product Management (Full CRUD + Images)
-1.  **Create:** Modal form to add new products with **image upload support (JPG/PNG)**.
-2.  **Read:** Real-time product visualization with server-side image rendering.
-3.  **Update:** Edit existing products (Name, Price, Category, and Image).
-4.  **Delete:** Secure product deletion with confirmation.
-5.  **Auto-Refresh:** Interface updates instantly after any change without reloading the page.
+The project utilizes a Jamstack approach with a microservices-oriented structure, containerized for consistent deployment.
+
+### Frontend (Client)
+* **Framework:** React 18 + Vite (SPA Architecture).
+* **State Management:** Context API (Auth and Cart modules).
+* **Networking:** Axios for REST API consumption.
+* **Real-time Communication:** Socket.io Client for live order updates.
+* **Authentication:** Google OAuth 2.0 (@react-oauth/google) and internal JWT handling.
+* **Payment Integration:** Stripe.js for secure credit card processing.
+* **UI/UX:** CSS Modules and Responsive Design principles.
+
+### Backend (Server)
+* **Runtime:** Node.js.
+* **Framework:** Express.js.
+* **Database Modeling:** Mongoose (ODM).
+* **Authentication:** * JSON Web Tokens (JWT) for session management.
+    * Google Auth Library for identity verification.
+* **Real-time Server:** Socket.io for bi-directional event emission (Kitchen <-> Client).
+* **API Documentation:** Swagger UI (OpenAPI Specification).
+* **File Handling:** Multer for local image storage.
+* **Security:** CORS, Bcrypt for password hashing, and input validation.
+
+### Database
+* **System:** MongoDB (NoSQL Document Store).
+* **Collections:** Users, Products, Orders.
+
+### Infrastructure & DevOps
+* **Containerization:** Docker.
+* **Orchestration:** Docker Compose (Frontend, Backend, Database services).
 
 ---
 
-## ⚙️ Installation & Setup
+## Key Features
 
-To run this project locally, you need **Docker Desktop** installed.
+### 1. Authentication & Security
+* **Hybrid Authentication:** Supports both standard email/password registration and Google OAuth 2.0 "One Tap" login.
+* **Role-Based Access Control (RBAC):** Distinct permissions for Administrators (Kitchen) and Clients (Students).
+* **Route Protection:** Implementation of Higher-Order Components (HOC) to guard sensitive routes based on token validity and user roles.
+
+### 2. Product Management (Admin)
+* Full CRUD operations for inventory items.
+* Server-side image upload and serving via static middleware.
+* Real-time inventory updates.
+
+### 3. Ordering System
+* **Shopping Cart:** Persistent client-side state for order aggregation.
+* **Payment Gateway:** Integration with Stripe for secure transaction simulation in test mode.
+* **Order Tracking:** Live status tracking (Pending -> In Progress -> Ready -> Delivered).
+
+### 4. Real-Time Synchronization
+* Implementation of WebSocket events (`server:neworder`, `server:orderupdated`) to synchronize the Kitchen Dashboard with Client views instantly without polling.
+
+### 5. API Documentation
+* Fully documented endpoints available at `/api-docs` using Swagger UI.
+
+---
+
+## Installation & Setup
+
+Prerequisites: Docker Desktop and Git.
 
 1.  **Clone the repository:**
     ```bash
-    git clone <your-repo-url>
+    git clone <repository-url>
     cd uceats
     ```
 
-2.  **Start services:**
+2.  **Environment Configuration:**
+    Create a `.env` file in the `backend` directory with the following keys:
+    ```env
+    PORT=3000
+    MONGODB_URI=mongodb://mongo:27017/uceatsdb
+    JWT_SECRET=your_secure_secret
+    FRONTEND_URL=http://localhost:5173
+    GOOGLE_CLIENT_ID=your_google_client_id
+    ```
+
+3.  **Deploy Services:**
     ```bash
     docker compose up --build
     ```
 
-3.  **Access the application:**
-    * **Frontend:** `http://localhost:5173`
-    * **Backend API:** `http://localhost:3000`
-    * **Database:** Port `27017`
+4.  **Access Points:**
+    * **Application:** http://localhost:5173
+    * **API Documentation:** http://localhost:3000/api-docs
+    * **Backend Health Check:** http://localhost:3000
 
 ---
 
-## 🔜 Roadmap
-* [x] Real image upload implementation (Multer).
-* [ ] Authentication System (Login/Register with JWT).
-* [ ] Client View (Read-only Public Menu).
-* [ ] Shopping Cart.
+## Project Roadmap
 
----
-**Developed by:** [Your Name] - Information Systems Engineering Student.
-
---------
-ESPANISH
-
-# 🍔 UCEats - Sistema de Automatización de Bares UCE
-
-**UCEats** es una aplicación web Full Stack diseñada para modernizar y gestionar los bares y comedores de la Universidad Central del Ecuador (UCE). Permite a los administradores gestionar el inventario de productos (comidas, bebidas, snacks) mediante una interfaz intuitiva, con soporte para subida de imágenes reales.
+* [x] Core Architecture Setup (MERN + Docker).
+* [x] Image Upload Handling.
+* [x] Authentication (JWT + Google OAuth).
+* [x] Role-Based Access Control.
+* [x] Real-time WebSockets Implementation.
+* [x] Payment Gateway Integration (Stripe).
+* [x] API Documentation (Swagger).
+* [ ] Production Deployment (CI/CD Pipelines).
 
 ---
 
-## 🚀 Tecnologías Utilizadas
+**Developed by:** Kenny Cisneros - Information Systems Engineering Student.
 
-Este proyecto utiliza una arquitectura basada en microservicios contenerizados con **Docker**.
+-------------------------------------------------------------------------
+SPANISH VERSION
+-------------------------------------------------------------------------
 
-### 💻 Frontend (Cliente)
-Construido con **React + Vite** para una experiencia de usuario rápida y reactiva.
-* **React 18:** Librería principal de UI.
-* **React Hook Form:** Manejo eficiente y validación de formularios.
-* **Axios:** Cliente HTTP para comunicación con el servidor (soporte FormData).
-* **React Icons:** Paquete de íconos vectoriales.
-* **CSS Modules / Inline:** Estilos personalizados con variables CSS.
+# UCEats - Sistema de Automatización de Bares UCE
 
-### 🛠️ Backend (Servidor)
-API RESTful construida sobre **Node.js**.
-* **Express.js:** Framework web minimalista y robusto.
-* **Mongoose:** ODM para modelado de datos en MongoDB.
-* **Multer:** Middleware para manejo y subida de archivos (imágenes).
-* **Cors:** Gestión de permisos de acceso cruzado.
-* **Morgan:** Logger de peticiones HTTP para desarrollo.
-* **Dotenv:** Gestión de variables de entorno.
+**UCEats** es una aplicación web Full Stack diseñada para modernizar la gestión y el servicio de bares y comedores en la Universidad Central del Ecuador (UCE). El sistema facilita la gestión de inventarios, el procesamiento de pedidos y la integración de pagos a través de una interfaz segura basada en roles.
 
-### 🗄️ Base de Datos
-* **MongoDB:** Base de datos NoSQL orientada a documentos (persistencia de datos).
-
-### 🐳 DevOps & Infraestructura
-* **Docker:** Contenerización de servicios.
-* **Docker Compose:** Orquestación de los contenedores (Frontend, Backend, DB).
+El sistema conecta al personal de cocina y a los estudiantes mediante protocolos de comunicación en tiempo real y estándares de autenticación seguros.
 
 ---
 
-## ✨ Funcionalidades Actuales (MVP)
+## Arquitectura Técnica
 
-### Gestión de Productos (CRUD Completo + Imágenes)
-1.  **Crear:** Formulario modal para ingresar nuevos productos con **soporte para subida de imágenes (JPG/PNG)**.
-2.  **Leer:** Visualización de productos en tiempo real con renderizado de imágenes desde el servidor.
-3.  **Actualizar:** Edición de productos existentes (Nombre, Precio, Categoría e Imagen).
-4.  **Eliminar:** Borrado seguro de productos con confirmación.
-5.  **Refresco Automático:** La interfaz se actualiza instantáneamente tras cualquier cambio sin recargar la página.
+El proyecto utiliza un enfoque Jamstack con una estructura orientada a microservicios, contenerizada para un despliegue consistente.
+
+### Frontend (Cliente)
+* **Framework:** React 18 + Vite (Arquitectura SPA).
+* **Gestión de Estado:** Context API (Módulos de Auth y Carrito).
+* **Red:** Axios para consumo de API REST.
+* **Comunicación en Tiempo Real:** Socket.io Client para actualizaciones de pedidos en vivo.
+* **Autenticación:** Google OAuth 2.0 (@react-oauth/google) y manejo interno de JWT.
+* **Integración de Pagos:** Stripe.js para procesamiento seguro de tarjetas de crédito.
+* **UI/UX:** CSS Modules y principios de Diseño Responsivo.
+
+### Backend (Servidor)
+* **Entorno:** Node.js.
+* **Framework:** Express.js.
+* **Modelado de Datos:** Mongoose (ODM).
+* **Autenticación:** * JSON Web Tokens (JWT) para gestión de sesiones.
+    * Google Auth Library para verificación de identidad.
+* **Servidor en Tiempo Real:** Socket.io para emisión de eventos bidireccionales (Cocina <-> Cliente).
+* **Documentación de API:** Swagger UI (Especificación OpenAPI).
+* **Manejo de Archivos:** Multer para almacenamiento local de imágenes.
+* **Seguridad:** CORS, Bcrypt para hash de contraseñas y validación de entradas.
+
+### Base de Datos
+* **Sistema:** MongoDB (Almacenamiento de documentos NoSQL).
+* **Colecciones:** Usuarios, Productos, Pedidos.
+
+### Infraestructura y DevOps
+* **Contenerización:** Docker.
+* **Orquestación:** Docker Compose (Servicios de Frontend, Backend y Base de Datos).
 
 ---
 
-## ⚙️ Instalación y Ejecución
+## Funcionalidades Clave
 
-Para correr este proyecto localmente, necesitas tener instalado **Docker Desktop**.
+### 1. Autenticación y Seguridad
+* **Autenticación Híbrida:** Soporte para registro estándar por correo/contraseña y login mediante Google OAuth 2.0 ("One Tap").
+* **Control de Acceso Basado en Roles (RBAC):** Permisos distintos para Administradores (Cocina) y Clientes (Estudiantes).
+* **Protección de Rutas:** Implementación de componentes de orden superior para proteger rutas sensibles según la validez del token y el rol del usuario.
+
+### 2. Gestión de Productos (Admin)
+* Operaciones CRUD completas para ítems de inventario.
+* Subida y servicio de imágenes desde el servidor.
+* Actualización de inventario en tiempo real.
+
+### 3. Sistema de Pedidos
+* **Carrito de Compras:** Estado persistente del lado del cliente para agregación de pedidos.
+* **Pasarela de Pagos:** Integración con Stripe para simulación segura de transacciones en modo de prueba.
+* **Seguimiento de Pedidos:** Rastreo de estado en vivo (Pendiente -> En Progreso -> Listo -> Entregado).
+
+### 4. Sincronización en Tiempo Real
+* Implementación de eventos WebSocket (`server:neworder`, `server:orderupdated`) para sincronizar el Panel de Cocina con las vistas del Cliente instantáneamente sin necesidad de recargar (polling).
+
+### 5. Documentación de API
+* Endpoints totalmente documentados y accesibles en `/api-docs` utilizando Swagger UI.
+
+---
+
+## Instalación y Configuración
+
+Prerrequisitos: Docker Desktop y Git.
 
 1.  **Clonar el repositorio:**
     ```bash
-    git clone <tu-repositorio-url>
+    git clone <url-del-repositorio>
     cd uceats
     ```
 
-2.  **Iniciar los servicios:**
+2.  **Configuración de Entorno:**
+    Crear un archivo `.env` en el directorio `backend` con las siguientes claves:
+    ```env
+    PORT=3000
+    MONGODB_URI=mongodb://mongo:27017/uceatsdb
+    JWT_SECRET=tu_secreto_seguro
+    FRONTEND_URL=http://localhost:5173
+    GOOGLE_CLIENT_ID=tu_cliente_id_google
+    ```
+
+3.  **Desplegar Servicios:**
     ```bash
     docker compose up --build
     ```
 
-3.  **Acceder a la aplicación:**
-    * **Frontend:** `http://localhost:5173`
-    * **Backend API:** `http://localhost:3000`
-    * **Base de Datos:** Puerto `27017`
+4.  **Puntos de Acceso:**
+    * **Aplicación:** http://localhost:5173
+    * **Documentación API:** http://localhost:3000/api-docs
+    * **Backend Health Check:** http://localhost:3000
 
 ---
 
-## 🔜 Próximos Pasos (Roadmap)
-* [x] Implementación de subida de imágenes reales (Multer).
-* [ ] Sistema de Autenticación (Login/Register con JWT).
-* [ ] Vista de Cliente (Menú público solo lectura).
-* [ ] Carrito de compras.
+## Hoja de Ruta del Proyecto
+
+* [x] Configuración de Arquitectura Base (MERN + Docker).
+* [x] Manejo de Subida de Imágenes.
+* [x] Autenticación (JWT + Google OAuth).
+* [x] Control de Acceso Basado en Roles.
+* [x] Implementación de WebSockets en Tiempo Real.
+* [x] Integración de Pasarela de Pagos (Stripe).
+* [x] Documentación de API (Swagger).
+* [ ] Despliegue en Producción (CI/CD Pipelines).
 
 ---
-**Desarrollado por:** [Tu Nombre] - Estudiante de Ingeniería en Sistemas de Información.
 
----
+**Desarrollado por:** Kenny Cisneros - Estudiante de Ingeniería en Sistemas de Información.
