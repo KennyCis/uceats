@@ -3,8 +3,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import http from "http"; 
+import swaggerUi from "swagger-ui-express";
 import { Server as SocketServer } from "socket.io"; 
 import { connectDB } from "./db.js";
+import { swaggerSpec } from "./swagger.js";
 
 // Routes Imports
 import authRoutes from "./routes/auth.routes.js";
@@ -48,6 +50,9 @@ app.use((req, res, next) => {
     req.io = io;
     next();
 });
+
+//Swagger route
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // API Routes
 app.use("/api", authRoutes);

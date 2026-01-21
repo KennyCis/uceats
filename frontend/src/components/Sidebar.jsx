@@ -183,7 +183,7 @@ function Sidebar() {
         />
 
         {/* FOOTER */}
-        <div style={{ marginTop: "40px", paddingTop: "20px", borderTop: "1px dashed #E2E8F0" }}>
+        <div style={{ marginTop: "10px", paddingTop: "20px", borderTop: "1px dashed #E2E8F0" }}>
             <SidebarItem 
                 onClick={() => setIsHelpOpen(true)} 
                 icon={FiHelpCircle} 
