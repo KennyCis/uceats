@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("uceats_user", JSON.stringify(newUserData));
   };
 
-  // --- NEW: GOOGLE LOGIN LOGIC ---
+  // GOOGLE LOGIN LOGIC ---
   const loginWithGoogle = async (googleToken) => {
     try {
         // Send the Google token to our Backend
