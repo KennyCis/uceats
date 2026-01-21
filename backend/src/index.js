@@ -3,10 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import http from "http"; 
-import swaggerUi from "swagger-ui-express";
 import { Server as SocketServer } from "socket.io"; 
 import { connectDB } from "./db.js";
-import { swaggerSpec } from "./swagger.js";
 
 // Routes Imports
 import authRoutes from "./routes/auth.routes.js";
@@ -14,6 +12,10 @@ import productRoutes from "./routes/products.routes.js";
 import orderRoutes from "./routes/orders.routes.js";
 import paymentRoutes from "./routes/payments.routes.js";
 import statsRoutes from "./routes/stats.routes.js";
+
+// Swagger Imports
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./swagger.js";
 
 dotenv.config();
 
@@ -27,7 +29,7 @@ const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
 const io = new SocketServer(server, {
     cors: {
         origin: allowedOrigins, 
-        methods: ["GET", "POST", "PUT", "DELETE"],
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
         credentials: true
     }
 });
@@ -39,7 +41,7 @@ connectDB();
 app.use(cors({
     origin: allowedOrigins, 
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"]
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"] 
 }));
 
 app.use(express.json());
@@ -51,7 +53,7 @@ app.use((req, res, next) => {
     next();
 });
 
-//Swagger route
+// Swagger Route
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // API Routes
