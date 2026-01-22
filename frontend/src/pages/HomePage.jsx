@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import io from "socket.io-client"; // Import Socket.io
+import io from "socket.io-client"; 
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import ProductCard from "../components/ProductCard";
+import ProductSkeleton from "../components/ProductSkeleton"; 
 import CreateProductModal from "../components/CreateProductModal";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext"; 
@@ -21,6 +22,7 @@ function HomePage() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true); 
   const [editingProduct, setEditingProduct] = useState(null); 
 
   const location = useLocation();
@@ -32,11 +34,19 @@ function HomePage() {
 
   // Search/Fetch data
   const fetchProducts = async () => {
+    setLoading(true); // Start loading
     try {
       const response = await axios.get("http://localhost:3000/api/products");
-      setProducts(response.data);
+      
+      // Artificial delay to show skeleton effect (remove in production if desired)
+      setTimeout(() => {
+          setProducts(response.data);
+          setLoading(false); // Stop loading skeleton
+      }, 1000); 
+
     } catch (error) {
-      // silent error
+      console.error(error);
+      setLoading(false); // Stop loading even on error
     }
   };
 
@@ -47,13 +57,10 @@ function HomePage() {
     socket.on("server:neworder", (newOrder) => {
         setProducts((currentProducts) => 
             currentProducts.map((product) => {
-                // Find if the current product exists in the new order items
-                // item.product corresponds to the product ID in the order model
                 const purchasedItem = newOrder.items.find(
                     (item) => item.product === product._id || item.product._id === product._id
                 );
 
-                // If found, decrease the local stock
                 if (purchasedItem) {
                     return { 
                         ...product, 
@@ -95,15 +102,12 @@ function HomePage() {
 
   // FILTERING LOGIC
   const filteredProducts = products.filter(p => {
-    // A. Filter by Popularity
     if (specialFilter === "popular") {
         return p.isPopular === true;
     }
-    // B. Filter by Category
     if (categoryFilter) {
         return p.category === categoryFilter;
     }
-    // C. Default: Show All
     return true;
   });
 
@@ -129,7 +133,8 @@ function HomePage() {
                 {getPageTitle()}
             </h1>
             <p style={{ color: "var(--text-muted)", marginTop: "5px" }}>
-                {filteredProducts.length} items found
+                {/* Adjust count based on loading state */}
+                {loading ? "Updating..." : `${filteredProducts.length} items found`}
             </p>
           </div>
 
@@ -140,26 +145,34 @@ function HomePage() {
           }}>
             
             {/* Card ADD - Only show if user is ADMIN */}
-            {isAdmin && (
+            {isAdmin && !loading && (
                 <div onClick={openCreateModal}>
                    <ProductCard variant="add" />
                 </div>
             )}
 
-            {/* Render Filtered Products */}
-            {filteredProducts.map(p => (
-              <ProductCard 
-                  key={p._id} 
-                  product={p} 
-                  isAdmin={isAdmin} 
-                  onDelete={() => handleDelete(p._id)} 
-                  onEdit={handleEdit} 
-                  onAddToCart={() => addToCart(p)}
-              />
-            ))}
+            {/* 3. Conditional Rendering: Loading vs Data */}
+            {loading ? (
+                // Show 8 Skeletons while loading
+                [...Array(8)].map((_, index) => (
+                    <ProductSkeleton key={index} />
+                ))
+            ) : (
+                // Show Real Products
+                filteredProducts.map(p => (
+                    <ProductCard 
+                        key={p._id} 
+                        product={p} 
+                        isAdmin={isAdmin} 
+                        onDelete={() => handleDelete(p._id)} 
+                        onEdit={handleEdit} 
+                        onAddToCart={() => addToCart(p)}
+                    />
+                ))
+            )}
 
             {/* Empty State Message */}
-            {filteredProducts.length === 0 && (
+            {!loading && filteredProducts.length === 0 && (
                 <div style={{ gridColumn: "1 / -1", textAlign: "center", color: "#A0AEC0", marginTop: "50px" }}>
                     <h3>No products found in this category.</h3>
                     {isAdmin && <p>Add a new one!</p>}
