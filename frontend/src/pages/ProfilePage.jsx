@@ -66,18 +66,30 @@ function ProfilePage() {
 
   // --- STYLES ---
   const containerStyle = { minHeight: "100vh", backgroundColor: "#F8FAFC" };
-  const topNavStyle = { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "15px 40px", backgroundColor: "white", borderBottom: "1px solid #E2E8F0" };
+  const topNavStyle = { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "15px 5%", backgroundColor: "white", borderBottom: "1px solid #E2E8F0" };
   const backLinkStyle = { display: "flex", alignItems: "center", gap: "10px", textDecoration: "none", color: "var(--primary-dark)", fontWeight: "600" };
-  const mainContentStyle = { maxWidth: "1100px", margin: "40px auto", display: "flex", gap: "30px", padding: "0 20px" };
-  const leftCardStyle = { flex: "1", maxWidth: "300px", backgroundColor: "white", padding: "30px", borderRadius: "20px", boxShadow: "var(--shadow-card)", height: "fit-content", textAlign: "center" };
-  const rightSectionStyle = { flex: "2", backgroundColor: "white", padding: "30px", borderRadius: "20px", boxShadow: "var(--shadow-card)" };
-  const tabsContainerStyle = { display: "flex", borderBottom: "2px solid #E2E8F0", marginBottom: "30px" };
-  const tabStyle = (isActive) => ({ padding: "15px 25px", cursor: "pointer", fontWeight: "600", color: isActive ? "var(--primary-dark)" : "#718096", borderBottom: isActive ? "3px solid var(--primary-blue)" : "3px solid transparent", marginBottom: "-2px" });
+  
+  // Responsive Flex Container
+  const mainContentStyle = { 
+    maxWidth: "1100px", 
+    margin: "40px auto", 
+    display: "flex", 
+    flexWrap: "wrap", // Allows stacking on mobile
+    gap: "30px", 
+    padding: "0 20px" 
+  };
+
+  const leftCardStyle = { flex: "1 1 300px", backgroundColor: "white", padding: "30px", borderRadius: "20px", boxShadow: "var(--shadow-card)", height: "fit-content", textAlign: "center" };
+  const rightSectionStyle = { flex: "2 1 400px", backgroundColor: "white", padding: "30px", borderRadius: "20px", boxShadow: "var(--shadow-card)" };
+  
+  const tabsContainerStyle = { display: "flex", borderBottom: "2px solid #E2E8F0", marginBottom: "30px", overflowX: "auto" };
+  const tabStyle = (isActive) => ({ padding: "15px 25px", cursor: "pointer", fontWeight: "600", color: isActive ? "var(--primary-dark)" : "#718096", borderBottom: isActive ? "3px solid var(--primary-blue)" : "3px solid transparent", marginBottom: "-2px", whiteSpace: "nowrap" });
+  
   const formSectionTitleStyle = { color: "var(--primary-dark)", marginBottom: "25px", fontSize: "24px" };
   const inputGroupStyle = { marginBottom: "20px" };
   const labelStyle = { display: "block", marginBottom: "8px", fontWeight: "600", color: "var(--primary-dark)" };
   const inputStyle = { width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #CBD5E0", backgroundColor: "#F8FAFC", fontSize: "14px", boxSizing: "border-box" };
-  const saveButtonStyle = { backgroundColor: "var(--primary-dark)", color: "white", border: "none", padding: "12px 30px", borderRadius: "10px", fontWeight: "600", cursor: "pointer", marginTop: "10px" };
+  const saveButtonStyle = { backgroundColor: "var(--primary-dark)", color: "white", border: "none", padding: "12px 30px", borderRadius: "10px", fontWeight: "600", cursor: "pointer", marginTop: "10px", width: "100%" };
 
   if (!user) return <div>Loading...</div>;
 
@@ -87,17 +99,17 @@ function ProfilePage() {
       <div style={topNavStyle}>
         <Link to="/home" style={backLinkStyle}>
           <FiArrowLeft size={20} />
-          Back to Home
+          <span className="desktop-only">Back to Home</span> {/* Optional: Hide text on tiny screens */}
         </Link>
         
         {/* LOGO */}
         <img 
             src={logo} 
             alt="UCEats Logo" 
-            style={{ height: "60px", objectFit: "contain" }} 
+            style={{ height: "50px", objectFit: "contain" }} 
         />
         
-        <div style={{width: 100}}></div> 
+        <div style={{width: 20}}></div> 
       </div>
 
       <div style={mainContentStyle}>

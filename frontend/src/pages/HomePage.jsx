@@ -122,53 +122,48 @@ function HomePage() {
     <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-body)" }}>
       <Sidebar />
       
-      <div style={{ marginLeft: "250px" }}> 
+      {/* 👇 1. ADD CLASS: dashboard-content */}
+      <div className="dashboard-content">
         <Header />
-        
-        <main style={{ padding: "40px 80px" }}>
-          
-          {/* Dynamic Header */}
+
+        {/* 👇 2. ADD CLASS: main-container */}
+        <main className="main-container">
+
           <div style={{ marginBottom: "30px" }}>
             <h1 style={{ margin: 0, color: "var(--primary-dark)", fontSize: "28px" }}>
-                {getPageTitle()}
+              {getPageTitle()}
             </h1>
             <p style={{ color: "var(--text-muted)", marginTop: "5px" }}>
-                {/* Adjust count based on loading state */}
-                {loading ? "Updating..." : `${filteredProducts.length} items found`}
+              {loading ? "Updating..." : `${filteredProducts.length} items found`}
             </p>
           </div>
 
-          <div style={{ 
-            display: "grid", 
-            gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", 
-            gap: "25px" 
-          }}>
-            
+          {/* 👇 3. ADD CLASS: products-grid */}
+          <div className="products-grid">
+
             {/* Card ADD - Only show if user is ADMIN */}
             {isAdmin && !loading && (
-                <div onClick={openCreateModal}>
-                   <ProductCard variant="add" />
-                </div>
+              <div onClick={openCreateModal}>
+                <ProductCard variant="add" />
+              </div>
             )}
 
-            {/* 3. Conditional Rendering: Loading vs Data */}
+            {/* Skeletons or Products */}
             {loading ? (
-                // Show 8 Skeletons while loading
-                [...Array(8)].map((_, index) => (
-                    <ProductSkeleton key={index} />
-                ))
+              [...Array(6)].map((_, index) => (
+                <ProductSkeleton key={index} />
+              ))
             ) : (
-                // Show Real Products
-                filteredProducts.map(p => (
-                    <ProductCard 
-                        key={p._id} 
-                        product={p} 
-                        isAdmin={isAdmin} 
-                        onDelete={() => handleDelete(p._id)} 
-                        onEdit={handleEdit} 
-                        onAddToCart={() => addToCart(p)}
-                    />
-                ))
+              filteredProducts.map(p => (
+                <ProductCard
+                  key={p._id}
+                  product={p}
+                  isAdmin={isAdmin}
+                  onDelete={() => handleDelete(p._id)}
+                  onEdit={handleEdit}
+                  onAddToCart={() => addToCart(p)}
+                />
+              ))
             )}
 
             {/* Empty State Message */}

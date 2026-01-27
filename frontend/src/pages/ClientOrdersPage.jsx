@@ -75,10 +75,12 @@ function ClientOrdersPage() {
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-body)" }}>
       <Sidebar />
-      <div style={{ marginLeft: "250px" }}>
+      {/* Responsive Wrapper Class */}
+      <div className="dashboard-content">
         <Header />
         
-        <main style={{ padding: "40px 80px" }}>
+        {/* Responsive Main Padding */}
+        <main className="main-container">
             <h1 style={{ color: "var(--primary-dark)", fontSize: "28px", marginBottom: "30px" }}>
                 My Orders 🍔
             </h1>
@@ -95,7 +97,7 @@ function ClientOrdersPage() {
                     </div>
                 ) : (
                     activeOrders.map((order) => (
-                        <div key={order._id} style={{ backgroundColor: "white", padding: "20px", borderRadius: "15px", border: "2px solid #FEFCBF", display: "flex", justifyContent: "space-between", alignItems: "center", boxShadow: "0 4px 10px rgba(214, 158, 46, 0.1)" }}>
+                        <div key={order._id} style={{ backgroundColor: "white", padding: "20px", borderRadius: "15px", border: "2px solid #FEFCBF", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "15px", boxShadow: "0 4px 10px rgba(214, 158, 46, 0.1)" }}>
                             <div>
                                 <div style={{ fontSize: "12px", color: "#A0AEC0", marginBottom: "5px" }}>
                                     Order #{order._id.slice(-6)} • {new Date(order.createdAt).toLocaleTimeString()}
@@ -123,7 +125,7 @@ function ClientOrdersPage() {
                     <div style={{ color: "#A0AEC0", fontSize: "14px" }}>No history available.</div>
                 ) : (
                     pastOrders.map((order) => (
-                        <div key={order._id} style={{ backgroundColor: "#F7FAFC", padding: "15px 20px", borderRadius: "10px", border: "1px solid #EDF2F7", display: "flex", justifyContent: "space-between", alignItems: "center", opacity: 0.8 }}>
+                        <div key={order._id} style={{ backgroundColor: "#F7FAFC", padding: "15px 20px", borderRadius: "10px", border: "1px solid #EDF2F7", display: "flex", justifyContent: "space-between", alignItems: "center", opacity: 0.8, flexWrap: "wrap", gap: "10px" }}>
                             <div>
                                 <div style={{ fontSize: "12px", color: "#A0AEC0" }}>
                                     {new Date(order.createdAt).toLocaleDateString()} • {new Date(order.createdAt).toLocaleTimeString()}

@@ -66,10 +66,12 @@ function OrdersPage() {
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-body)" }}>
       <Sidebar />
-      <div style={{ marginLeft: "250px" }}>
+      {/* Responsive Wrapper */}
+      <div className="dashboard-content">
         <Header />
         
-        <main style={{ padding: "40px 80px" }}>
+        {/* Responsive Padding */}
+        <main className="main-container">
             
             {/* HEADER WITHOUT REFRESH BUTTON */}
             <div style={{ marginBottom: "30px", display: "flex", alignItems: "center", gap: "15px" }}>
@@ -90,7 +92,8 @@ function OrdersPage() {
             </div>
 
             {/* ORDERS GRID */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "25px" }}>
+            <div className="products-grid"> 
+                {/* Reused grid class to maintain consistency across pages */}
                 
                 {orders.map((order) => {
                     const colors = getStatusColor(order.status);

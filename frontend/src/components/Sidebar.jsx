@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
   FiGrid, FiCoffee, FiPackage, FiStar, FiDisc, 
-  FiHelpCircle, FiClipboard, FiShoppingBag, FiPieChart 
+  FiHelpCircle, FiClipboard, FiShoppingBag, FiPieChart,
+  FiMenu, FiX // Imported icons
 } from "react-icons/fi"; 
 import { MdOutlineFastfood } from "react-icons/md"; 
 import HelpModal from "./HelpModal"; 
 import { useAuth } from "../context/AuthContext";
 
+// Helper Component
 const SidebarItem = ({ to, icon: Icon, label, isActive, onClick }) => {
     const [isHovered, setIsHovered] = useState(false);
   
@@ -28,6 +30,13 @@ const SidebarItem = ({ to, icon: Icon, label, isActive, onClick }) => {
       boxShadow: isHovered && !isActive ? "0 2px 8px rgba(0,0,0,0.05)" : (isActive ? "0 4px 12px rgba(0, 47, 108, 0.25)" : "none")
     };
   
+    // Logic for Link vs Div
+    const content = (
+        <>
+            <Icon style={{ marginRight: "12px", fontSize: "18px" }}/> {label}
+        </>
+    );
+
     if (to) {
         return (
             <Link 
@@ -35,8 +44,9 @@ const SidebarItem = ({ to, icon: Icon, label, isActive, onClick }) => {
                 style={style}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
+                onClick={onClick} // Close sidebar on click
             >
-                <Icon style={{ marginRight: "12px", fontSize: "18px" }}/> {label}
+                {content}
             </Link>
         );
     }
@@ -48,7 +58,7 @@ const SidebarItem = ({ to, icon: Icon, label, isActive, onClick }) => {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <Icon style={{ marginRight: "12px", fontSize: "20px" }}/> {label}
+            {content}
         </div>
     );
 };
@@ -58,7 +68,11 @@ function Sidebar() {
   const location = useLocation();
   const { user } = useAuth();
   const [isHelpOpen, setIsHelpOpen] = useState(false);
-  
+  const [isOpen, setIsOpen] = useState(false); // Mobile state
+
+  // Close sidebar helper
+  const closeSidebar = () => setIsOpen(false);
+
   const isActive = (path, queryParam = null) => {
     const searchParams = new URLSearchParams(location.search);
     const category = searchParams.get("category");
@@ -77,13 +91,6 @@ function Sidebar() {
     return location.pathname === path && !location.search;
   };
 
-  const sidebarStyle = {
-    width: "250px", height: "100vh", backgroundColor: "var(--white)",
-    position: "fixed", left: 0, top: 0, borderRight: "1px solid #E2E8F0",
-    display: "flex", flexDirection: "column", padding: "30px 20px",
-    zIndex: 50, overflowY: "auto"
-  };
-
   const titleStyle = {
     fontSize: "11px", fontWeight: "800", color: "#A0AEC0",
     letterSpacing: "1.2px", marginBottom: "15px", marginTop: "25px",
@@ -92,20 +99,36 @@ function Sidebar() {
 
   return (
     <>
-      <aside style={sidebarStyle}>
+      {/* MOBILE TOGGLE BUTTON */}
+      <div className="menu-toggle" onClick={() => setIsOpen(!isOpen)}>
+         <FiMenu size={24} />
+      </div>
+
+      <div 
+        className={`sidebar-overlay ${isOpen ? "open" : ""}`} 
+        onClick={closeSidebar}
+      />
+
+      {/* MAIN ASIDE */}
+      <aside className={`sidebar ${isOpen ? "open" : ""}`}>
         
-        {/* USER ROLE DISPLAY */}
+        {/* CLOSE BUTTON (Mobile Only) */}
+        <div style={{ alignSelf: "flex-end", marginBottom: "10px", cursor: "pointer" }} className="mobile-only">
+             {isOpen && <FiX size={24} onClick={closeSidebar} />}
+        </div>
+
+        {/* USER ROLE */}
         <div style={{ marginBottom: "30px", paddingLeft: "10px" }}>
             <small style={{ color: "var(--primary-dark)", fontSize: "10px", fontWeight: "700", letterSpacing: "1px", textTransform: "uppercase", opacity: 0.7 }}>
                 Current View
             </small>
             <h1 style={{ margin: "5px 0 0 0", color: "var(--primary-dark)", fontSize: "28px", textTransform: "uppercase", letterSpacing: "-1px" }}>
                 {user ? user.role : "Guest"}
-                <span style={{color: "var(--accent-red)", fontSize: "40px", lineHeight: "0px"}}>.</span>
+                <span style={{color: "var(--action-red)", fontSize: "40px", lineHeight: "0px"}}>.</span>
             </h1>
         </div>
 
-        {/* 1. ADMINISTRATION SECTION (TOP - ONLY FOR ADMIN) */}
+        {/* 1. ADMIN SECTION */}
         {user?.role === "admin" && (
             <>
                 <div style={titleStyle}>ADMINISTRATION</div>
@@ -114,17 +137,19 @@ function Sidebar() {
                     icon={FiPieChart} 
                     label="Overview" 
                     isActive={isActive("/dashboard")} 
+                    onClick={closeSidebar}
                 />
                 <SidebarItem 
                     to="/orders" 
                     icon={FiClipboard} 
                     label="Kitchen Orders" 
                     isActive={isActive("/orders")} 
+                    onClick={closeSidebar}
                 />
             </>
         )}
 
-        {/* 2. PERSONAL SECTION (TOP - ONLY FOR CLIENTS) */}
+        {/* 2. PERSONAL SECTION */}
         {user?.role !== "admin" && (
             <>
                 <div style={titleStyle}>PERSONAL</div>
@@ -133,11 +158,12 @@ function Sidebar() {
                     icon={FiShoppingBag} 
                     label="My Orders" 
                     isActive={isActive("/my-orders")} 
+                    onClick={closeSidebar}
                 />
             </>
         )}
 
-        {/* 3. GENERAL MENU (FOR EVERYONE) */}
+        {/* 3. MENU */}
         <div style={titleStyle}>MENU</div>
         
         <SidebarItem 
@@ -145,13 +171,14 @@ function Sidebar() {
             icon={FiGrid} 
             label="All Products" 
             isActive={isActive("/home")} 
+            onClick={closeSidebar}
         />
-        
         <SidebarItem 
             to="/home?filter=popular" 
             icon={FiStar} 
             label="Most Popular" 
             isActive={isActive("/home", "filter=popular")} 
+            onClick={closeSidebar}
         />
 
         {/* 4. CATEGORIES */}
@@ -162,30 +189,34 @@ function Sidebar() {
             icon={MdOutlineFastfood} 
             label="Food" 
             isActive={isActive("/home", "category=food")} 
+            onClick={closeSidebar}
         />
         <SidebarItem 
             to="/home?category=drinks" 
             icon={FiCoffee} 
             label="Drinks" 
             isActive={isActive("/home", "category=drinks")} 
+            onClick={closeSidebar}
         />
         <SidebarItem 
             to="/home?category=snacks" 
             icon={FiPackage} 
             label="Snacks" 
             isActive={isActive("/home", "category=snacks")} 
+            onClick={closeSidebar}
         />
         <SidebarItem 
             to="/home?category=others" 
             icon={FiDisc} 
             label="Others" 
             isActive={isActive("/home", "category=others")} 
+            onClick={closeSidebar}
         />
 
         {/* FOOTER */}
         <div style={{ marginTop: "10px", paddingTop: "20px", borderTop: "1px dashed #E2E8F0" }}>
             <SidebarItem 
-                onClick={() => setIsHelpOpen(true)} 
+                onClick={() => { setIsHelpOpen(true); closeSidebar(); }} 
                 icon={FiHelpCircle} 
                 label="Help & Support" 
                 isActive={false} 

@@ -27,7 +27,7 @@ function AdminDashboard() {
   // Card Component for consistency
   const StatCard = ({ title, value, icon: Icon, color }) => (
       <div style={{ backgroundColor: "white", padding: "25px", borderRadius: "15px", display: "flex", alignItems: "center", gap: "20px", boxShadow: "0 4px 6px rgba(0,0,0,0.02)", border: "1px solid #E2E8F0" }}>
-          <div style={{ width: "60px", height: "60px", borderRadius: "12px", backgroundColor: color, display: "flex", justifyContent: "center", alignItems: "center", color: "white", fontSize: "24px" }}>
+          <div style={{ width: "60px", height: "60px", borderRadius: "12px", backgroundColor: color, display: "flex", justifyContent: "center", alignItems: "center", color: "white", fontSize: "24px", flexShrink: 0 }}>
               <Icon />
           </div>
           <div>
@@ -40,10 +40,12 @@ function AdminDashboard() {
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-body)" }}>
       <Sidebar />
-      <div style={{ marginLeft: "250px" }}>
+      {/* Responsive Wrapper */}
+      <div className="dashboard-content">
         <Header />
         
-        <main style={{ padding: "40px 80px" }}>
+        {/* Responsive Padding */}
+        <main className="main-container">
             <h1 style={{ color: "var(--primary-dark)", fontSize: "28px", marginBottom: "30px" }}>
                 Business Overview 📊
             </h1>
@@ -71,12 +73,13 @@ function AdminDashboard() {
             </div>
 
             {/* TOP PRODUCTS TABLE */}
-            <div style={{ backgroundColor: "white", padding: "30px", borderRadius: "15px", border: "1px solid #E2E8F0" }}>
+            <div style={{ backgroundColor: "white", padding: "30px", borderRadius: "15px", border: "1px solid #E2E8F0", overflowX: "auto" }}>
+                {/* overflowX allows table scroll on mobile */}
                 <h3 style={{ margin: "0 0 20px 0", display: "flex", alignItems: "center", gap: "10px", color: "#2D3748" }}>
                     <FiTrendingUp /> Top Selling Products
                 </h3>
                 
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "500px" }}>
                     <thead>
                         <tr style={{ borderBottom: "2px solid #E2E8F0", color: "#718096", textAlign: "left" }}>
                             <th style={{ padding: "15px" }}>Product Name</th>
