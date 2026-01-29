@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { FiX, FiTrash2, FiShoppingBag } from "react-icons/fi";
+import { FiX, FiTrash2, FiShoppingBag, FiMinus, FiPlus } from "react-icons/fi"; // Added Minus/Plus icons
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext"; 
 import axios from "axios"; 
 import PaymentModal from "./PaymentModal"; 
 
 function CartDrawer({ isOpen, onClose }) {
-  const { cart, removeFromCart, clearCart } = useCart();
+  // Destructure new functions
+  const { cart, removeFromCart, clearCart, increaseQuantity, decreaseQuantity } = useCart();
   const { user } = useAuth(); 
   
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -48,13 +49,14 @@ function CartDrawer({ isOpen, onClose }) {
   // --- STYLES ---
   const overlayStyle = {
     position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.5)", // Removed blur here
+    backgroundColor: "rgba(0,0,0,0.5)",
     zIndex: 2000,
   };
 
   const drawerStyle = {
     position: "fixed", top: 0, right: 0, bottom: 0,
-    width: "400px", backgroundColor: "white", zIndex: 2001,
+    width: "400px", maxWidth: "85vw", // Responsive fix for mobile
+    backgroundColor: "white", zIndex: 2001,
     boxShadow: "-5px 0 15px rgba(0,0,0,0.1)",
     display: "flex", flexDirection: "column",
     animation: "slideIn 0.3s ease-out"
@@ -87,13 +89,18 @@ function CartDrawer({ isOpen, onClose }) {
     display: "flex", justifyContent: "space-between", alignItems: "center"
   };
 
+  // New Button Style for Quantity Controls
+  const qtyBtnStyle = {
+      width: "28px", height: "28px", 
+      borderRadius: "8px", border: "none",
+      backgroundColor: "#EDF2F7", color: "#2D3748",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      cursor: "pointer", fontSize: "14px"
+  };
+
   return (
     <>
-      {/* OVERLAY & DRAWER 
-         Condition: Only show them if the Payment Modal is CLOSED (!isPaymentModalOpen).
-         If Payment Modal is open, we hide the sidebar to avoid clutter.
-      */}
-      
+      {/* OVERLAY & DRAWER */}
       {!isPaymentModalOpen && (
         <>
             <div style={overlayStyle} onClick={onClose}></div>
@@ -127,19 +134,37 @@ function CartDrawer({ isOpen, onClose }) {
                         />
                         <div style={{ flex: 1, marginLeft: "15px" }}>
                             <h4 style={{ margin: "0 0 5px 0", fontSize: "14px" }}>{item.name}</h4>
-                            <div style={{ fontSize: "12px", color: "#718096" }}>
-                                ${item.price.toFixed(2)} x {item.quantity}
+                            
+                            {/* NEW: QUANTITY CONTROLS */}
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "5px" }}>
+                                <button style={qtyBtnStyle} onClick={() => decreaseQuantity(item._id)}>
+                                    <FiMinus />
+                                </button>
+                                
+                                <span style={{ fontWeight: "bold", minWidth: "20px", textAlign: "center" }}>
+                                    {item.quantity}
+                                </span>
+                                
+                                <button style={qtyBtnStyle} onClick={() => increaseQuantity(item._id)}>
+                                    <FiPlus />
+                                </button>
                             </div>
+
+                        </div>
+
+                        {/* PRICE & DELETE */}
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "10px" }}>
                             <div style={{ fontWeight: "bold", color: "var(--primary-dark)" }}>
                                 ${(item.price * item.quantity).toFixed(2)}
                             </div>
+                            <button 
+                                onClick={() => removeFromCart(item._id)}
+                                style={{ background: "none", color: "#C53030", border: "none", padding: "0", cursor: "pointer" }}
+                                title="Remove Item"
+                            >
+                                <FiTrash2 size={16} />
+                            </button>
                         </div>
-                        <button 
-                            onClick={() => removeFromCart(item._id)}
-                            style={{ background: "#FFF5F5", color: "#C53030", border: "none", padding: "8px", borderRadius: "8px", cursor: "pointer" }}
-                        >
-                            <FiTrash2 />
-                        </button>
                     </div>
                     ))
                 )}
@@ -171,7 +196,7 @@ function CartDrawer({ isOpen, onClose }) {
       {/* PAYMENT MODAL (Managed internally) */}
       <PaymentModal 
         isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)} // This brings back the drawer if canceled
+        onClose={() => setIsPaymentModalOpen(false)} 
         total={total}
         onSuccess={handlePaymentSuccess}
       />

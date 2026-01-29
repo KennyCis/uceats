@@ -14,27 +14,54 @@ export const CartProvider = ({ children }) => {
     setTotalItems(count);
   }, [cart]);
 
-  // Add Item Logic
+  // Add Item Logic (Standard add)
   const addToCart = (product) => {
     setCart((prevCart) => {
-      // 1. Check if product already exists
       const existingItem = prevCart.find((item) => item._id === product._id);
 
       if (existingItem) {
-        // 2. If exists, just increase quantity
         return prevCart.map((item) =>
           item._id === product._id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       } else {
-        // 3. If new, add to array with quantity 1
         return [...prevCart, { ...product, quantity: 1 }];
       }
     });
   };
 
-  // Remove Item Logic (for later)
+  // --- NEW: INCREASE QUANTITY (+) ---
+  const increaseQuantity = (productId) => {
+    setCart((prevCart) => 
+        prevCart.map((item) => 
+            item._id === productId 
+                ? { ...item, quantity: item.quantity + 1 } 
+                : item
+        )
+    );
+  };
+
+  // --- NEW: DECREASE QUANTITY (-) ---
+  const decreaseQuantity = (productId) => {
+    setCart((prevCart) => {
+        const item = prevCart.find((i) => i._id === productId);
+        
+        // If quantity is 1, remove item
+        if (item?.quantity === 1) {
+            return prevCart.filter((i) => i._id !== productId);
+        }
+
+        // Otherwise, decrease by 1
+        return prevCart.map((i) => 
+            i._id === productId 
+                ? { ...i, quantity: i.quantity - 1 } 
+                : i
+        );
+    });
+  };
+
+  // Remove Item Logic (Trash button)
   const removeFromCart = (productId) => {
     setCart((prevCart) => prevCart.filter((item) => item._id !== productId));
   };
@@ -45,7 +72,15 @@ export const CartProvider = ({ children }) => {
   };
 
   return (
-    <CartContext.Provider value={{ cart, totalItems, addToCart, removeFromCart, clearCart }}>
+    <CartContext.Provider value={{ 
+        cart, 
+        totalItems, 
+        addToCart, 
+        increaseQuantity, // Exported
+        decreaseQuantity, // Exported
+        removeFromCart, 
+        clearCart 
+    }}>
       {children}
     </CartContext.Provider>
   );

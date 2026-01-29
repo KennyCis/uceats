@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import http from "http"; 
+import fs from 'fs'; // Import File System
+import morgan from 'morgan'; // Import Morgan
 import { Server as SocketServer } from "socket.io"; 
 import { connectDB } from "./db.js";
 
@@ -37,7 +39,21 @@ const io = new SocketServer(server, {
 // Database Connection
 connectDB();
 
-// Middlewares
+// --- LOGGING CONFIGURATION (NEW) ---
+// 1. Ensure logs directory exists
+const logDirectory = path.join(process.cwd(), 'logs');
+if (!fs.existsSync(logDirectory)) {
+    fs.mkdirSync(logDirectory);
+}
+
+// 2. Create write stream (append mode)
+const accessLogStream = fs.createWriteStream(path.join(logDirectory, 'access.log'), { flags: 'a' });
+
+// 3. Apply Middlewares
+app.use(morgan('combined', { stream: accessLogStream })); // Write to file (Standard Apache format)
+app.use(morgan('dev')); // Write to console (Colored for dev)
+
+// General Middlewares
 app.use(cors({
     origin: allowedOrigins, 
     credentials: true,
