@@ -19,7 +19,7 @@ function ClientOrdersPage() {
       const response = await axios.get(`http://localhost:3000/api/orders/user/${user.id}`);
       setOrders(response.data);
     } catch (error) {
-      console.error("Error fetching orders:", error);
+      // silent error
     }
   };
 
@@ -34,7 +34,6 @@ function ClientOrdersPage() {
         );
     });
 
-    // Also listen for new orders created by this user in another tab
     socket.on("server:neworder", (newOrder) => {
         if (user && newOrder.client._id === user.id) {
              setOrders(prev => [newOrder, ...prev]);
@@ -68,24 +67,20 @@ function ClientOrdersPage() {
       );
   };
 
-  //SEPARATE ORDERS LOGIC
   const activeOrders = orders.filter(o => o.status === "pending" || o.status === "in-progress");
   const pastOrders = orders.filter(o => o.status === "completed");
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-body)" }}>
       <Sidebar />
-      {/* Responsive Wrapper Class */}
       <div className="dashboard-content">
         <Header />
         
-        {/* Responsive Main Padding */}
         <main className="main-container">
             <h1 style={{ color: "var(--primary-dark)", fontSize: "28px", marginBottom: "30px" }}>
                 My Orders 🍔
             </h1>
 
-            {/* SECTION 1: ACTIVE ORDERS (Live Tracking) */}
             <h3 style={{ fontSize: "18px", color: "#4A5568", marginBottom: "15px", display: "flex", alignItems: "center", gap: "10px" }}>
                 <FiClock /> In Progress
             </h3>
@@ -115,7 +110,6 @@ function ClientOrdersPage() {
                 )}
             </div>
 
-            {/* SECTION 2: ORDER HISTORY (Permanent Log) */}
             <h3 style={{ fontSize: "18px", color: "#4A5568", marginBottom: "15px", display: "flex", alignItems: "center", gap: "10px", borderTop: "1px dashed #E2E8F0", paddingTop: "30px" }}>
                 <FiArchive /> Order History
             </h3>
@@ -142,7 +136,6 @@ function ClientOrdersPage() {
                     ))
                 )}
             </div>
-
         </main>
       </div>
     </div>

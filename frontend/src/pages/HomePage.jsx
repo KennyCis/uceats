@@ -41,40 +41,40 @@ function HomePage() {
       // Artificial delay to show skeleton effect (remove in production if desired)
       setTimeout(() => {
           setProducts(response.data);
-          setLoading(false); // Stop loading skeleton
+          setLoading(false); 
       }, 1000); 
 
     } catch (error) {
-      console.error(error);
-      setLoading(false); // Stop loading even on error
+      // Handle error silently
+      setLoading(false); 
     }
   };
 
   useEffect(() => {
     fetchProducts();
 
-    // Real-time Stock Update Listener
     socket.on("server:neworder", (newOrder) => {
-        setProducts((currentProducts) => 
-            currentProducts.map((product) => {
-                const purchasedItem = newOrder.items.find(
-                    (item) => item.product === product._id || item.product._id === product._id
-                );
-
-                if (purchasedItem) {
-                    return { 
-                        ...product, 
-                        stock: Math.max(0, product.stock - purchasedItem.quantity) 
-                    };
-                }
-                return product;
-            })
-        );
     });
 
-    // Cleanup listener on unmount
+    socket.on("server:newproduct", (newProduct) => {
+      setProducts((prev) => [...prev, newProduct]);
+    });
+
+    socket.on("server:deleteproduct", (deletedId) => {
+      setProducts((prev) => prev.filter(p => p._id !== deletedId));
+    });
+
+    socket.on("server:updateproduct", (updatedProduct) => {
+      setProducts((prev) => prev.map(p =>
+        p._id === updatedProduct._id ? updatedProduct : p
+      ));
+    });
+
     return () => {
-        socket.off("server:neworder");
+      socket.off("server:neworder");
+      socket.off("server:newproduct");
+      socket.off("server:deleteproduct");
+      socket.off("server:updateproduct");
     };
   }, []);
 
@@ -122,11 +122,9 @@ function HomePage() {
     <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-body)" }}>
       <Sidebar />
       
-      {/* 👇 1. ADD CLASS: dashboard-content */}
       <div className="dashboard-content">
         <Header />
 
-        {/* 👇 2. ADD CLASS: main-container */}
         <main className="main-container">
 
           <div style={{ marginBottom: "30px" }}>
@@ -138,7 +136,6 @@ function HomePage() {
             </p>
           </div>
 
-          {/* 👇 3. ADD CLASS: products-grid */}
           <div className="products-grid">
 
             {/* Card ADD - Only show if user is ADMIN */}
@@ -178,7 +175,6 @@ function HomePage() {
         </main>
       </div>
 
-      {/* Modal - Only Admins can trigger this via the Add Card */}
       {isModalOpen && (
         <CreateProductModal 
           onClose={() => setIsModalOpen(false)} 
@@ -196,7 +192,6 @@ function HomePage() {
         </div>
       )}
 
-      {/* Render Drawer */}
       <CartDrawer 
         isOpen={isCartOpen} 
         onClose={() => setIsCartOpen(false)} 

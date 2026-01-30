@@ -14,14 +14,11 @@ function Login() {
 
   const onLogin = handleSubmit(async (data) => {
     try {
-      console.log("Attempting login with:", data);
       const res = await loginRequest(data); // Call API
-      console.log("Login Success:", res.data);
       signin(res.data); // Save global
       navigate("/home"); // Navigate to Home
       
     } catch (error) {
-      console.error("Login error:", error.response?.data);
       alert(error.response?.data?.message || "Invalid credentials");
     }
   });
@@ -30,7 +27,6 @@ function Login() {
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
         if (credentialResponse.credential) {
-            console.log("Google Token received:", credentialResponse.credential);
             await loginWithGoogle(credentialResponse.credential);
             navigate("/home"); 
         }
@@ -47,7 +43,7 @@ function Login() {
             <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={() => {
-                    console.log('Login Failed');
+                    // Silent failure or specific UI feedback
                 }}
                 useOneTap
                 theme="outline"

@@ -30,9 +30,7 @@ function Register() {
       navigate("/home");
       
     } catch (error) {
-      if (error.response && error.response.data) {
-        console.error("Registration error", error.response.data);
-      }
+      // Handle errors silently or set form errors if needed
     }
   });
 

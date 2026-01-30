@@ -26,7 +26,6 @@ function OrdersPage() {
 
     // REAL TIME LISTENER
     socket.on("server:neworder", (newOrder) => {
-        // Just add the new order to the list immediately
         setOrders((prevOrders) => [newOrder, ...prevOrders]);
     });
 
@@ -41,7 +40,7 @@ function OrdersPage() {
         await axios.patch(`http://localhost:3000/api/orders/${orderId}`, { status: newStatus });
         fetchOrders(); 
     } catch (error) {
-        console.error(error);
+        // Handle error silently
     }
   };
 
@@ -53,7 +52,7 @@ function OrdersPage() {
           await axios.delete(`http://localhost:3000/api/orders/${orderId}`);        
           setOrders(prev => prev.filter(o => o._id !== orderId));
       } catch (error) {
-          console.error(error);
+          // Handle error silently
       }
   };
 
@@ -73,7 +72,7 @@ function OrdersPage() {
         {/* Responsive Padding */}
         <main className="main-container">
             
-            {/* HEADER WITHOUT REFRESH BUTTON */}
+            {/* HEADER */}
             <div style={{ marginBottom: "30px", display: "flex", alignItems: "center", gap: "15px" }}>
                 <h1 style={{ margin: 0, color: "var(--primary-dark)", fontSize: "28px" }}>
                     Kitchen Orders 👨‍🍳
@@ -93,8 +92,6 @@ function OrdersPage() {
 
             {/* ORDERS GRID */}
             <div className="products-grid"> 
-                {/* Reused grid class to maintain consistency across pages */}
-                
                 {orders.map((order) => {
                     const colors = getStatusColor(order.status);
                     
@@ -145,7 +142,6 @@ function OrdersPage() {
                             {/* ACTIONS FOOTER */}
                             <div style={{ padding: "15px", backgroundColor: "#F7FAFC", borderTop: "1px solid #E2E8F0" }}>
                                 {order.status === "pending" ? (
-                                    // STATE 1: READY BUTTON
                                     <button 
                                         onClick={() => handleStatusChange(order._id, "completed")}
                                         style={{ width: "100%", padding: "10px", backgroundColor: "#48BB78", color: "white", border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center", gap: "8px" }}
@@ -153,13 +149,10 @@ function OrdersPage() {
                                         <FiCheckCircle /> Mark as Ready
                                     </button>
                                 ) : (
-                                    // STATE 2: COMPLETED + DELETE BUTTON
                                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                                         <span style={{ color: "#2F855A", fontWeight: "bold", display: "flex", alignItems: "center", gap: "5px" }}>
                                             <FiCheckCircle /> Completed
                                         </span>
-                                        
-                                        {/* DELETE BUTTON */}
                                         <button 
                                             onClick={() => handleDelete(order._id)}
                                             style={{ 
@@ -184,7 +177,6 @@ function OrdersPage() {
                         <h3>No active orders. Kitchen is quiet. 🦗</h3>
                     </div>
                 )}
-
             </div>
         </main>
       </div>

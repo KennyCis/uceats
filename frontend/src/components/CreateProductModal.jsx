@@ -6,8 +6,8 @@ import axios from "axios";
 function CreateProductModal({ onClose, onSaved, productToEdit = null }) {
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
   
-  const [preview, setPreview] = useState(null);//selection
-  const selectedFile = watch("image");//preview
+  const [preview, setPreview] = useState(null); // selection
+  const selectedFile = watch("image"); // preview
 
   useEffect(() => {
     if (selectedFile && selectedFile.length > 0) {
@@ -16,7 +16,7 @@ function CreateProductModal({ onClose, onSaved, productToEdit = null }) {
     }
   }, [selectedFile]);
 
-  //edit data 
+  // edit data 
   useEffect(() => {
     if (productToEdit) {
       setValue("name", productToEdit.name);
@@ -30,24 +30,24 @@ function CreateProductModal({ onClose, onSaved, productToEdit = null }) {
 
   const onSubmit = async (data) => {
     try {
-      //CREATE FORM DATA
+      // CREATE FORM DATA
       const formData = new FormData();
       
-      //ADD CAMP THE TEXT
+      // ADD CAMP THE TEXT
       formData.append("name", data.name);
       formData.append("price", data.price);
-      formData.append("stock", data.stock);
+      formData.append("stock", data.stock); // Now backend will receive this
       formData.append("category", data.category);
-      formData.append("isPopular", data.isPopular); // Send boolean
+      formData.append("isPopular", data.isPopular); // Send boolean (as string "true"/"false")
 
-      //ADD IMAGE
+      // ADD IMAGE
       if (data.image && data.image[0]) {
           formData.append("image", data.image[0]);
       }
 
-      //SEND POST or PUT
+      // SEND POST or PUT
       if (productToEdit) {
-        //Put send FormData
+        // Put send FormData
         await axios.put(`http://localhost:3000/api/products/${productToEdit._id}`, formData);
       } else {
         await axios.post("http://localhost:3000/api/products", formData);
@@ -58,10 +58,11 @@ function CreateProductModal({ onClose, onSaved, productToEdit = null }) {
 
     } catch (error) {
       // Silent error handling
+      console.error("Error saving product:", error);
     }
   };
 
-  //Styles
+  // Styles
   const overlayStyle = { position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(0, 0, 0, 0.5)", backdropFilter: "blur(2px)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 };
   const modalStyle = { backgroundColor: "var(--white)", padding: "30px", borderRadius: "20px", width: "450px", boxShadow: "var(--shadow-card)", position: "relative", animation: "fadeIn 0.3s ease", maxHeight: "90vh", overflowY: "auto" };
   const labelStyle = { display: "block", marginBottom: "8px", fontSize: "14px", fontWeight: "600", color: "var(--primary-dark)" };
@@ -80,7 +81,7 @@ function CreateProductModal({ onClose, onSaved, productToEdit = null }) {
           </button>
         </div>
 
-        {/*Form*/}
+        {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)}>
           
           <div>
@@ -107,7 +108,7 @@ function CreateProductModal({ onClose, onSaved, productToEdit = null }) {
             <div style={{ flex: 1 }}>
                 <label style={labelStyle}>Category</label>
                 <select {...register("category")} style={inputStyle}>
-                    <option value="others">Others</option> {/* Added Others */}
+                    <option value="others">Others</option> 
                     <option value="food">Food</option>
                     <option value="drinks">Drinks</option>
                     <option value="snacks">Snacks</option> 
@@ -115,11 +116,11 @@ function CreateProductModal({ onClose, onSaved, productToEdit = null }) {
             </div>
           </div>
 
-          {/*imput image plus*/}
+          {/* imput image plus */}
           <div style={{ marginBottom: "25px" }}>
              <label style={labelStyle}>Product Image</label>
              
-             {/*click zone imput file*/}
+             {/* click zone imput file */}
              <div style={{ position: "relative" }}>
                  <input 
                     type="file" 
@@ -147,7 +148,7 @@ function CreateProductModal({ onClose, onSaved, productToEdit = null }) {
              </div>
           </div>
 
-          {/* CHECKBOX POPULAR (New Feature) */}
+          {/* CHECKBOX POPULAR */}
           <div style={{ 
             display: "flex", alignItems: "center", gap: "10px", 
             backgroundColor: "#FFFBEB", padding: "10px", borderRadius: "10px", 
