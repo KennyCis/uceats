@@ -3,8 +3,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import http from "http"; 
-import fs from 'fs'; // Import File System
-import morgan from 'morgan'; // Import Morgan
+import fs from 'fs'; 
+import morgan from 'morgan'; 
+import helmet from "helmet"; 
 import { Server as SocketServer } from "socket.io"; 
 import { connectDB } from "./db.js";
 
@@ -26,6 +27,13 @@ const server = http.createServer(app);
 
 // Allowed domains for CORS (Frontend)
 const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
+ 
+app.use(
+  helmet({
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }, 
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 
 // Socket.io Configuration
 const io = new SocketServer(server, {
@@ -39,19 +47,16 @@ const io = new SocketServer(server, {
 // Database Connection
 connectDB();
 
-// --- LOGGING CONFIGURATION (NEW) ---
-// 1. Ensure logs directory exists
+// --- LOGGING CONFIGURATION ---
 const logDirectory = path.join(process.cwd(), 'logs');
 if (!fs.existsSync(logDirectory)) {
     fs.mkdirSync(logDirectory);
 }
 
-// 2. Create write stream (append mode)
 const accessLogStream = fs.createWriteStream(path.join(logDirectory, 'access.log'), { flags: 'a' });
 
-// 3. Apply Middlewares
-app.use(morgan('combined', { stream: accessLogStream })); // Write to file (Standard Apache format)
-app.use(morgan('dev')); // Write to console (Colored for dev)
+app.use(morgan('combined', { stream: accessLogStream })); 
+app.use(morgan('dev')); 
 
 // General Middlewares
 app.use(cors({

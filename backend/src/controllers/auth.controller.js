@@ -120,9 +120,9 @@ export const googleLogin = async (req, res) => {
                 email: email,
                 password: passwordHash,
                 image: picture, // Use Google's profile picture
-                role: "student", // Default role for Google users
+                role: "student", // VALID NOW: "student" is in the Schema enum
                 termsAccepted: true, // Assumed accepted by using the app
-                birthdate: null // User can update this later in profile
+                birthdate: null // VALID NOW: birthdate is not required in Schema
             });
             await user.save();
         }
