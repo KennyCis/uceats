@@ -3,13 +3,13 @@ import { Link, useLocation } from "react-router-dom";
 import { 
   FiGrid, FiCoffee, FiPackage, FiStar, FiDisc, 
   FiHelpCircle, FiClipboard, FiShoppingBag, FiPieChart,
-  FiMenu, FiX // Imported icons
+  FiMenu, FiX 
 } from "react-icons/fi"; 
 import { MdOutlineFastfood } from "react-icons/md"; 
 import HelpModal from "./HelpModal"; 
 import { useAuth } from "../context/AuthContext";
 
-// Helper Component
+// Helper Component (Styles preserved)
 const SidebarItem = ({ to, icon: Icon, label, isActive, onClick }) => {
     const [isHovered, setIsHovered] = useState(false);
   
@@ -73,17 +73,23 @@ function Sidebar() {
   // Close sidebar helper
   const closeSidebar = () => setIsOpen(false);
 
+  // UPDATED: Logic to handle URL parameters (including view=overview)
   const isActive = (path, queryParam = null) => {
     const searchParams = new URLSearchParams(location.search);
     const category = searchParams.get("category");
     const filter = searchParams.get("filter");
+    const view = searchParams.get("view"); // Check for view param
 
+    // 1. Strict match for "All Products" (No params allowed)
     if (path === "/home" && !queryParam && !location.search) return true;
+    
+    // 2. Strict match for other routes
     if (path === "/orders") return location.pathname === "/orders"; 
     if (path === "/my-orders") return location.pathname === "/my-orders"; 
-    if (path === "/dashboard") return location.pathname === "/dashboard"; 
 
+    // 3. Match Query Parameters
     if (queryParam) {
+        if (queryParam.includes("view")) return view === queryParam.split("=")[1]; // Handle view=overview
         if (queryParam.includes("category")) return category === queryParam.split("=")[1];
         if (queryParam.includes("filter")) return filter === queryParam.split("=")[1];
     }
@@ -132,13 +138,16 @@ function Sidebar() {
         {user?.role === "admin" && (
             <>
                 <div style={titleStyle}>ADMINISTRATION</div>
+                
+                {/* UPDATED LINK: Points to Home with view param */}
                 <SidebarItem 
-                    to="/dashboard" 
+                    to="/home?view=overview" 
                     icon={FiPieChart} 
                     label="Overview" 
-                    isActive={isActive("/dashboard")} 
+                    isActive={isActive("/home", "view=overview")} 
                     onClick={closeSidebar}
                 />
+                
                 <SidebarItem 
                     to="/orders" 
                     icon={FiClipboard} 
