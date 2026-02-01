@@ -2,6 +2,7 @@ import User from "../models/User.model.js";
 import bcrypt from "bcryptjs";
 import { createAccessToken } from "../libs/jwt.js"; // Import JWT generator
 import { OAuth2Client } from "google-auth-library"; // Import Google Client
+import { sendWelcomeEmail } from "../libs/mailer.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -98,20 +99,15 @@ export const googleLogin = async (req, res) => {
     const { token } = req.body; 
 
     try {
-        // 1. Verify token with Google
         const ticket = await client.verifyIdToken({
             idToken: token,
             audience: process.env.GOOGLE_CLIENT_ID,
         });
 
         const { name, email, picture } = ticket.getPayload();
-
-        // 2. Check if user exists in DB
         let user = await User.findOne({ email });
 
-        // 3. If not exists, create it (Auto-Register)
         if (!user) {
-            // Generate random secure password
             const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
             const passwordHash = await bcrypt.hash(randomPassword, 10);
 
@@ -119,15 +115,17 @@ export const googleLogin = async (req, res) => {
                 name: name,
                 email: email,
                 password: passwordHash,
-                image: picture, // Use Google's profile picture
-                role: "student", // VALID NOW: "student" is in the Schema enum
-                termsAccepted: true, // Assumed accepted by using the app
-                birthdate: null // VALID NOW: birthdate is not required in Schema
+                image: picture, 
+                role: "student", 
+                termsAccepted: true, 
+                birthdate: null 
             });
             await user.save();
+
+            console.log("Sending welcome email to new user...");
+            sendWelcomeEmail(user.email, user.name); 
         }
 
-        // 4. Generate JWT for our app
         const accessToken = await createAccessToken({ id: user._id });
 
         res.json({
