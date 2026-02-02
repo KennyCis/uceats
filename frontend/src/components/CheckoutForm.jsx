@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { FiLock, FiCheckCircle, FiAlertCircle } from "react-icons/fi";
+import { FiLock, FiAlertCircle, FiLoader, FiCheckCircle } from "react-icons/fi";
 
 const CheckoutForm = ({ amount, onSuccess, onClose }) => {
   const stripe = useStripe();
@@ -13,59 +13,79 @@ const CheckoutForm = ({ amount, onSuccess, onClose }) => {
     e.preventDefault();
 
     if (!stripe || !elements) {
-      return; // Stripe.js has not yet loaded.
+      return;
     }
 
     setIsLoading(true);
+    setMessage(null); // Limpiar errores previos
 
-    // 1. Confirm Payment with Stripe
-    const { error, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        // No redirect needed for credit cards, usually. 
-        // We handle logic manually below.
-      },
-      redirect: "if_required",
-    });
+    try {
+        // 1. Confirm Payment with Stripe
+        const { error, paymentIntent } = await stripe.confirmPayment({
+          elements,
+          confirmParams: {
+            return_url: window.location.origin, 
+          },
+          redirect: "if_required",
+        });
 
-    if (error) {
-      setMessage(error.message);
-      setIsLoading(false);
-    } else if (paymentIntent && paymentIntent.status === "succeeded") {
-      // 2. Payment Success! Now we create the Order in our Database
-      await onSuccess();
-      setIsLoading(false);
-    } else {
-      setMessage("Unexpected state.");
-      setIsLoading(false);
+        if (error) {
+          // ERROR DE STRIPE (Tarjeta rechazada, fondos insuficientes, etc.)
+          setMessage(error.message);
+          setIsLoading(false);
+        } else if (paymentIntent && paymentIntent.status === "succeeded") {
+          // ÉXITO
+          await onSuccess();
+          // No ponemos setIsLoading(false) aquí porque el modal se cerrará solo
+        } else {
+          setMessage("Unexpected state. Please try again.");
+          setIsLoading(false);
+        }
+    } catch (err) {
+        setMessage("Connection error. Please check your internet.");
+        setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} style={{ opacity: isLoading ? 0.7 : 1, pointerEvents: isLoading ? 'none' : 'auto' }}>
+      
       <div style={{ marginBottom: "20px" }}>
-        <h3 style={{ color: "#2D3748", marginBottom: "10px" }}>Secure Checkout 🔒</h3>
+        <h3 style={{ color: "#2D3748", marginBottom: "10px", display: "flex", alignItems: "center", gap: "10px" }}>
+            Secure Checkout 🔒
+        </h3>
         <p style={{ color: "#718096", fontSize: "14px", marginBottom: "20px" }}>
-           Total to pay: <b style={{ color: "#2D3748" }}>${amount.toFixed(2)}</b>
+           Total a pagar: <b style={{ color: "#2D3748" }}>${amount.toFixed(2)}</b>
         </p>
         
-        {/* STRIPE SECURE INPUT */}
-        <div style={{ border: "1px solid #E2E8F0", padding: "15px", borderRadius: "8px" }}>
+        {/* STRIPE ELEMENT */}
+        <div style={{ border: "1px solid #E2E8F0", padding: "15px", borderRadius: "8px", backgroundColor: "#F7FAFC" }}>
             <PaymentElement />
         </div>
       </div>
 
+      {/* MENSAJE DE ERROR (ROJO Y CLARO) */}
       {message && (
-        <div style={{ color: "#C53030", backgroundColor: "#FFF5F5", padding: "10px", borderRadius: "5px", marginBottom: "15px", display: "flex", alignItems: "center", gap: "10px", fontSize: "13px" }}>
-            <FiAlertCircle /> {message}
+        <div style={{ 
+            color: "#742A2A", 
+            backgroundColor: "#FFF5F5", 
+            padding: "12px", 
+            borderRadius: "8px", 
+            marginBottom: "20px", 
+            border: "1px solid #FEB2B2",
+            display: "flex", alignItems: "center", gap: "10px", fontSize: "14px" 
+        }}>
+            <FiAlertCircle size={20} /> 
+            <span>{message}</span>
         </div>
       )}
 
-      <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+      <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "20px" }}>
           <button 
             type="button" 
             onClick={onClose}
-            style={{ padding: "10px 20px", border: "none", background: "#EDF2F7", color: "#4A5568", borderRadius: "8px", cursor: "pointer", fontWeight: "600" }}
+            disabled={isLoading}
+            style={{ padding: "12px 20px", border: "none", background: "#EDF2F7", color: "#4A5568", borderRadius: "8px", cursor: "pointer", fontWeight: "600" }}
           >
             Cancel
           </button>
@@ -74,19 +94,33 @@ const CheckoutForm = ({ amount, onSuccess, onClose }) => {
             type="submit" 
             disabled={isLoading || !stripe || !elements}
             style={{ 
-                padding: "10px 25px", 
+                padding: "12px 25px", 
                 border: "none", 
-                background: isLoading ? "#A0AEC0" : "#48BB78", 
+                background: isLoading ? "#4A5568" : "#48BB78", // Cambia a gris si carga
                 color: "white", 
                 borderRadius: "8px", 
-                cursor: isLoading ? "not-allowed" : "pointer", 
+                cursor: isLoading ? "wait" : "pointer", 
                 fontWeight: "600",
-                display: "flex", alignItems: "center", gap: "8px"
+                display: "flex", alignItems: "center", gap: "10px",
+                minWidth: "140px",
+                justifyContent: "center"
             }}
           >
-            {isLoading ? "Processing..." : <><FiLock /> Pay Now</>}
+            {isLoading ? (
+                <>
+                    <FiLoader className="spin-icon" /> Processing...
+                </>
+            ) : (
+                <>Pay Now</>
+            )}
           </button>
       </div>
+
+      {/* CSS para la animación de rotación */}
+      <style>{`
+        .spin-icon { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+      `}</style>
     </form>
   );
 };

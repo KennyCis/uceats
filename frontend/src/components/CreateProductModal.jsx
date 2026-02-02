@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FiX, FiUploadCloud, FiStar } from "react-icons/fi";
 import axios from "axios";
+import { useAuth } from "../context/AuthContext"; 
 
 function CreateProductModal({ onClose, onSaved, productToEdit = null }) {
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm();
+  const { user } = useAuth();
   
-  const [preview, setPreview] = useState(null); // selection
-  const selectedFile = watch("image"); // preview
+  const [preview, setPreview] = useState(null); 
+  const selectedFile = watch("image"); 
 
   useEffect(() => {
     if (selectedFile && selectedFile.length > 0) {
@@ -23,42 +25,53 @@ function CreateProductModal({ onClose, onSaved, productToEdit = null }) {
       setValue("price", productToEdit.price);
       setValue("stock", productToEdit.stock);
       setValue("category", productToEdit.category);
-      setValue("isPopular", productToEdit.isPopular); // Load popular status
+      setValue("isPopular", productToEdit.isPopular); 
       setPreview(productToEdit.image);
     }
   }, [productToEdit, setValue]);
 
   const onSubmit = async (data) => {
+    // SECURITY GUARD: Check token
+    if (!user?.token) {
+        alert("You must be logged in to manage products.");
+        return;
+    }
+
     try {
       // CREATE FORM DATA
       const formData = new FormData();
       
-      // ADD CAMP THE TEXT
       formData.append("name", data.name);
       formData.append("price", data.price);
-      formData.append("stock", data.stock); // Now backend will receive this
+      formData.append("stock", data.stock); 
       formData.append("category", data.category);
-      formData.append("isPopular", data.isPopular); // Send boolean (as string "true"/"false")
+      formData.append("isPopular", data.isPopular); 
 
       // ADD IMAGE
       if (data.image && data.image[0]) {
           formData.append("image", data.image[0]);
       }
 
+      const config = {
+        headers: {
+            Authorization: `Bearer ${user.token}`,
+            "Content-Type": "multipart/form-data" 
+        }
+      };
+
       // SEND POST or PUT
       if (productToEdit) {
-        // Put send FormData
-        await axios.put(`http://localhost:3000/api/products/${productToEdit._id}`, formData);
+        await axios.put(`http://localhost:3000/api/products/${productToEdit._id}`, formData, config);
       } else {
-        await axios.post("http://localhost:3000/api/products", formData);
+        await axios.post("http://localhost:3000/api/products", formData, config);
       }
       
       onClose(); 
       if (onSaved) onSaved(); 
 
     } catch (error) {
-      // Silent error handling
       console.error("Error saving product:", error);
+      alert("Error saving product. Check console.");
     }
   };
 

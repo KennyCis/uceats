@@ -4,27 +4,32 @@ import io from "socket.io-client";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import { FiClock, FiCheckCircle, FiTrash2 } from "react-icons/fi"; 
+import { useAuth } from "../context/AuthContext";
 
-// Initialize Socket connection
 const socket = io("http://localhost:3000");
 
 function OrdersPage() {
   const [orders, setOrders] = useState([]);
+  const { user } = useAuth();
 
-  // Fetch Orders (Initial Load)
+  // Fetch Orders with Token
   const fetchOrders = async () => {
+    if (!user?.token) return;
+
     try {
-      const response = await axios.get("http://localhost:3000/api/orders");
+      const config = {
+        headers: { Authorization: `Bearer ${user.token}` }
+      };
+      const response = await axios.get("http://localhost:3000/api/orders", config);
       setOrders(response.data);
     } catch (error) {
-      // silent error
+      console.error(error);
     }
   };
 
   useEffect(() => {
     fetchOrders();
 
-    // REAL TIME LISTENER
     socket.on("server:neworder", (newOrder) => {
         setOrders((prevOrders) => [newOrder, ...prevOrders]);
     });
@@ -32,53 +37,58 @@ function OrdersPage() {
     return () => {
         socket.off("server:neworder");
     };
-  }, []);
+  }, [user]);
 
   // Update Status
   const handleStatusChange = async (orderId, newStatus) => {
+    if (!user?.token) return;
+
     try {
-        await axios.patch(`http://localhost:3000/api/orders/${orderId}`, { status: newStatus });
+        const config = {
+            headers: { Authorization: `Bearer ${user.token}` }
+        };
+        await axios.patch(`http://localhost:3000/api/orders/${orderId}`, { status: newStatus }, config);
         fetchOrders(); 
     } catch (error) {
-        // Handle error silently
+        console.error(error);
     }
   };
 
-  // Delete Function
+  // Delete WITHOUT Confirmation Alert
   const handleDelete = async (orderId) => {
-      if(!window.confirm("Remove this ticket from the screen?")) return;
+      // Removed window.confirm line to delete immediately
+      if (!user?.token) return;
 
       try {
-          await axios.delete(`http://localhost:3000/api/orders/${orderId}`);        
+          const config = {
+            headers: { Authorization: `Bearer ${user.token}` }
+          };
+          await axios.delete(`http://localhost:3000/api/orders/${orderId}`, config);        
           setOrders(prev => prev.filter(o => o._id !== orderId));
       } catch (error) {
-          // Handle error silently
+          console.error(error);
       }
   };
 
   const getStatusColor = (status) => {
-      if (status === "pending") return { bg: "#FFF5F5", text: "#C53030", border: "#FEB2B2" }; // Red
-      if (status === "completed") return { bg: "#F0FFF4", text: "#2F855A", border: "#9AE6B4" }; // Green
+      if (status === "pending") return { bg: "#FFF5F5", text: "#C53030", border: "#FEB2B2" }; 
+      if (status === "completed") return { bg: "#F0FFF4", text: "#2F855A", border: "#9AE6B4" }; 
       return { bg: "white", text: "black", border: "#E2E8F0" };
   };
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-body)" }}>
       <Sidebar />
-      {/* Responsive Wrapper */}
       <div className="dashboard-content">
         <Header />
         
-        {/* Responsive Padding */}
         <main className="main-container">
             
-            {/* HEADER */}
             <div style={{ marginBottom: "30px", display: "flex", alignItems: "center", gap: "15px" }}>
                 <h1 style={{ margin: 0, color: "var(--primary-dark)", fontSize: "28px" }}>
                     Kitchen Orders 👨‍🍳
                 </h1>
                 
-                {/* Live Indicator */}
                 <span style={{ 
                     backgroundColor: "#C6F6D5", color: "#22543D", 
                     padding: "5px 12px", borderRadius: "20px", 
@@ -90,7 +100,6 @@ function OrdersPage() {
                 </span>
             </div>
 
-            {/* ORDERS GRID */}
             <div className="products-grid"> 
                 {orders.map((order) => {
                     const colors = getStatusColor(order.status);
@@ -104,7 +113,6 @@ function OrdersPage() {
                             overflow: "hidden",
                             display: "flex", flexDirection: "column"
                         }}>
-                            {/* TICKET HEADER */}
                             <div style={{ 
                                 padding: "15px", 
                                 backgroundColor: colors.bg, 
@@ -117,13 +125,11 @@ function OrdersPage() {
                                 </span>
                             </div>
 
-                            {/* CLIENT INFO */}
                             <div style={{ padding: "15px", borderBottom: "1px dashed #E2E8F0" }}>
                                 <div style={{ fontSize: "14px", color: "#718096" }}>Customer</div>
                                 <div style={{ fontWeight: "bold", color: "#2D3748" }}>{order.client?.name || "Unknown"}</div>
                             </div>
 
-                            {/* ITEMS LIST */}
                             <div style={{ padding: "15px", flex: 1 }}>
                                 {order.items.map((item, index) => (
                                     <div key={index} style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "14px" }}>
@@ -139,7 +145,6 @@ function OrdersPage() {
                                 </div>
                             </div>
 
-                            {/* ACTIONS FOOTER */}
                             <div style={{ padding: "15px", backgroundColor: "#F7FAFC", borderTop: "1px solid #E2E8F0" }}>
                                 {order.status === "pending" ? (
                                     <button 

@@ -11,10 +11,8 @@ function CartDrawer({ isOpen, onClose }) {
   const { user } = useAuth(); 
   
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
- 
   const [isSuccessOpen, setIsSuccessOpen] = useState(false);
   const [lastOrderData, setLastOrderData] = useState(null);
-
 
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
@@ -36,7 +34,14 @@ function CartDrawer({ isOpen, onClose }) {
             total: total
         };
 
-        const res = await axios.post("http://localhost:3000/api/orders", orderDataPayload);
+        // FIX: Add Authorization Header with Token
+        const config = {
+            headers: {
+                Authorization: `Bearer ${user.token}`
+            }
+        };
+
+        const res = await axios.post("http://localhost:3000/api/orders", orderDataPayload, config);
         
         const createdOrder = {
             _id: res.data._id || "NEW-" + Date.now(), 
@@ -48,14 +53,12 @@ function CartDrawer({ isOpen, onClose }) {
 
         clearCart(); 
         setIsPaymentModalOpen(false);
-        
         setIsSuccessOpen(true);  
 
     } catch (error) {
         console.error("Error creating order:", error);
     }
   };
-
 
   const handleCloseAll = () => {
       setIsSuccessOpen(false);
@@ -131,7 +134,6 @@ function CartDrawer({ isOpen, onClose }) {
         </>
       )}
       
-     
       <PaymentModal 
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)} 

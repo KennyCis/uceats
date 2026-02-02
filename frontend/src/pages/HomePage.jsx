@@ -20,7 +20,7 @@ const socket = io("http://localhost:3000");
 
 function HomePage() {
   const { addToCart } = useCart();
-  const { user } = useAuth(); 
+  const { user } = useAuth(); // Token access
   const navigate = useNavigate();
 
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -38,8 +38,6 @@ function HomePage() {
   const viewFilter = searchParams.get("view"); 
 
   const isAdmin = user?.role === "admin";
-  
-  // DETERMINE IF WE SHOW DASHBOARD
   const showDashboard = isAdmin && viewFilter === "overview";
 
   // Search/Fetch data
@@ -61,7 +59,6 @@ function HomePage() {
   useEffect(() => {
     fetchProducts();
 
-    // Socket Listeners
     socket.on("server:neworder", (newOrder) => {});
 
     socket.on("server:newproduct", (newProduct) => {
@@ -86,13 +83,18 @@ function HomePage() {
     };
   }, []);
 
-  // Delete product
+  // --- DELETE PRODUCT (SECURE & SILENT) ---
   const handleDelete = async (id) => {
+    if (!user?.token) return; // Silent fail if no token
+
     try {
-        await axios.delete(`http://localhost:3000/api/products/${id}`);
-        fetchProducts(); 
+        const config = {
+            headers: { Authorization: `Bearer ${user.token}` }
+        };
+        await axios.delete(`http://localhost:3000/api/products/${id}`, config);
+        // Socket updates the UI automatically
     } catch (error) {
-       // silent error
+       console.error("Error deleting product:", error);
     }
   };
 
@@ -115,9 +117,7 @@ function HomePage() {
     return true;
   });
 
-  // Dynamic Title Helper
   const getPageTitle = () => {
-    // Removed "Admin Analytics" logic.
     if (specialFilter === "popular") return "Most Popular ⭐";
     if (categoryFilter) return categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1);
     return "All Products";
@@ -132,7 +132,6 @@ function HomePage() {
 
         <main className="main-container">
 
-          {/* HIDE TITLE IF IN DASHBOARD (Since Dashboard has its own title) */}
           {!showDashboard && (
             <div style={{ marginBottom: "30px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                 <div>
@@ -147,14 +146,11 @@ function HomePage() {
             </div>
           )}
 
-          {/* === CONTENT SWITCHER === */}
           {showDashboard ? (
-            // VIEW A: DASHBOARD
             <div style={{ animation: "fadeIn 0.5s ease" }}>
                 <AdminDashboard />
             </div>
           ) : (
-            // VIEW B: PRODUCT GRID
             <div className="products-grid">
 
                 {/* Card ADD */}
@@ -175,7 +171,7 @@ function HomePage() {
                     key={p._id}
                     product={p}
                     isAdmin={isAdmin}
-                    onDelete={() => handleDelete(p._id)}
+                    onDelete={() => handleDelete(p._id)} 
                     onEdit={handleEdit}
                     onAddToCart={() => addToCart(p)}
                     />
@@ -191,7 +187,6 @@ function HomePage() {
                 )}
             </div>
           )}
-          {/* === END CONTENT SWITCHER === */}
 
         </main>
       </div>

@@ -11,11 +11,15 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { useAuth } from "../context/AuthContext"; // 1. Import Auth Context
 
 // Register ChartJS components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 function AdminDashboard() {
+  // Get User Token
+  const { user } = useAuth(); // 2. Extract user
+
   // State for statistics
   const [stats, setStats] = useState({
     revenue: 0,
@@ -25,24 +29,34 @@ function AdminDashboard() {
   });
 
   // State for Time Filter
-  const [timeRange, setTimeRange] = useState("today"); // Default to 'today'
+  const [timeRange, setTimeRange] = useState("today"); 
 
   // Fetch stats from API based on selected range
   const fetchStats = async () => {
+    // Guard: If no token, don't fetch
+    if (!user?.token) return;
+
     try {
-      const res = await axios.get(`http://localhost:3000/api/stats/summary?range=${timeRange}`);
+      // 3. Add Authorization Header
+      const config = {
+        headers: { Authorization: `Bearer ${user.token}` }
+      };
+
+      const res = await axios.get(`http://localhost:3000/api/stats/summary?range=${timeRange}`, config);
       setStats(res.data);
     } catch (error) {
       console.error("Error loading stats:", error);
     }
   };
 
-  // Reload data when timeRange changes
+  // Reload data when timeRange OR user changes
   useEffect(() => {
     fetchStats();
+    
+    // Auto-refresh every 30 seconds
     const interval = setInterval(fetchStats, 30000); 
     return () => clearInterval(interval);
-  }, [timeRange]);
+  }, [timeRange, user]); // Added 'user' to dependency array
 
   // --- CHART CONFIGURATION ---
   const chartData = {
@@ -92,7 +106,7 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {/* STATISTICS CARDS - ONLY 3 NOW */}
+      {/* STATISTICS CARDS */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "20px", marginBottom: "40px" }}>
         
         {/* REVENUE */}

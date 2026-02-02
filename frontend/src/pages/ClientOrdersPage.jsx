@@ -12,14 +12,17 @@ function ClientOrdersPage() {
   const { user } = useAuth();
   const [orders, setOrders] = useState([]);
 
-  // Fetch only MY orders
   const fetchMyOrders = async () => {
-    if (!user) return;
+    if (!user?.token) return;
+    
     try {
-      const response = await axios.get(`http://localhost:3000/api/orders/user/${user.id}`);
+      const config = {
+        headers: { Authorization: `Bearer ${user.token}` }
+      };
+      const response = await axios.get(`http://localhost:3000/api/orders/user/${user.id}`, config);
       setOrders(response.data);
     } catch (error) {
-      // silent error
+      console.error(error);
     }
   };
 
@@ -46,7 +49,6 @@ function ClientOrdersPage() {
     };
   }, [user]);
 
-  // Badge Helper
   const getStatusBadge = (status) => {
       if (status === "pending") return (
           <span style={{ backgroundColor: "#FEFCBF", color: "#D69E2E", padding: "5px 10px", borderRadius: "20px", fontSize: "12px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "5px" }}>

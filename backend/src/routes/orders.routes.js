@@ -6,22 +6,23 @@ import {
     updateOrderStatus, 
     archiveOrder 
 } from "../controllers/orders.controller.js";
+import { authRequired } from "../middlewares/validateToken.middleware.js"; 
 
 const router = Router();
 
-// GET ALL ORDERS (Only Active/Visible for Admin)
-router.get("/", getAllOrders);
+// GET ALL ORDERS 
+router.get("/", authRequired, getAllOrders); 
 
-// GET USER ORDERS (History for Student)
-router.get("/user/:userId", getUserOrders);
+// GET USER ORDERS 
+router.get("/user/:userId", authRequired, getUserOrders); //
 
-// CREATE ORDER
-router.post("/", createOrder);
+// CREATE ORDER 
+router.post("/", authRequired, createOrder); 
 
-// UPDATE STATUS (PATCH)
-router.patch("/:id", updateOrderStatus);
+// UPDATE STATUS 
+router.patch("/:id", authRequired, updateOrderStatus); 
 
-// ARCHIVE ORDER (DELETE visually)
-router.delete("/:id", archiveOrder);
+// ARCHIVE ORDER 
+router.delete("/:id", authRequired, archiveOrder); 
 
 export default router;

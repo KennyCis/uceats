@@ -6,8 +6,16 @@ import {
   googleLogin,
 } from "../controllers/auth.controller.js";
 import { upload } from "../middlewares/upload.middleware.js";
+import { authRequired } from "../middlewares/validateToken.middleware.js";
 
 const router = Router();
+
+/**
+ * @swagger
+ * tags:
+ *   name: Auth
+ *   description: Authentication endpoints
+ */
 
 /**
  * @swagger
@@ -33,9 +41,7 @@ const router = Router();
  *                 example: 123456
  *     responses:
  *       200:
- *         description: Login successful (returns JWT token)
- *       400:
- *         description: User not found or invalid password
+ *         description: Login successful
  */
 router.post("/login", login);
 
@@ -43,7 +49,7 @@ router.post("/login", login);
  * @swagger
  * /google:
  *   post:
- *     summary: Login with Google (Auto-Register)
+ *     summary: Login with Google
  *     tags: [Auth]
  *     requestBody:
  *       required: true
@@ -56,12 +62,9 @@ router.post("/login", login);
  *             properties:
  *               token:
  *                 type: string
- *                 description: Google ID Token received from frontend
  *     responses:
  *       200:
- *         description: Login successful (returns App JWT)
- *       400:
- *         description: Google authentication failed
+ *         description: Google login successful
  */
 router.post("/google", googleLogin);
 
@@ -78,6 +81,7 @@ router.post("/google", googleLogin);
  *           schema:
  *             type: object
  *             required:
+ *               - name
  *               - email
  *               - password
  *             properties:
@@ -93,8 +97,6 @@ router.post("/google", googleLogin);
  *     responses:
  *       201:
  *         description: User registered successfully
- *       400:
- *         description: User already exists or invalid data
  */
 router.post("/register", upload.single("image"), register);
 
@@ -104,6 +106,8 @@ router.post("/register", upload.single("image"), register);
  *   put:
  *     summary: Update user profile
  *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -125,9 +129,7 @@ router.post("/register", upload.single("image"), register);
  *     responses:
  *       200:
  *         description: Profile updated successfully
- *       404:
- *         description: User not found
  */
-router.put("/profile/:id", upload.single("image"), updateProfile);
+router.put("/profile/:id", authRequired, upload.single("image"), updateProfile);
 
 export default router;

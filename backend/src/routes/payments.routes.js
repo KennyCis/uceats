@@ -1,33 +1,48 @@
 import { Router } from "express";
-import Stripe from "stripe";
-import dotenv from "dotenv";
-
-dotenv.config();
+import { createPaymentIntent } from "../controllers/payments.controller.js";
+import { authRequired } from "../middlewares/validateToken.middleware.js";
 
 const router = Router();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-router.post("/create-payment-intent", async (req, res) => {
-    const { total } = req.body;
+/**
+ * @swagger
+ * tags:
+ *   name: Payments
+ *   description: Stripe Payment integration
+ */
 
-    try {
-        const amountInCents = Math.round(total * 100);
-
-        const paymentIntent = await stripe.paymentIntents.create({
-            amount: amountInCents,
-            currency: "usd",
-            // CHANGE: Force 'card' only. Removed automatic_payment_methods.
-            payment_method_types: ['card'], 
-        });
-
-        res.json({
-            clientSecret: paymentIntent.client_secret
-        });
-
-    } catch (error) {
-        console.error("Stripe Error:", error);
-        res.status(500).json({ message: "Internal Server Error during payment initialization" });
-    }
-});
+/**
+ * @swagger
+ * /payments/create-payment-intent:
+ *   post:
+ *     summary: Initialize Stripe Payment Intent
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - total
+ *             properties:
+ *               total:
+ *                 type: number
+ *                 description: Total amount to charge
+ *                 example: 25.5
+ *     responses:
+ *       200:
+ *         description: Client secret for Stripe frontend
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 clientSecret:
+ *                   type: string
+ */
+router.post("/create-payment-intent", authRequired, createPaymentIntent);
 
 export default router;
