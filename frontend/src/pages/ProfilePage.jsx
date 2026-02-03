@@ -53,7 +53,7 @@ function ProfilePage() {
         formData.append("image", data.image[0]);
       }
 
-      const res = await axios.put(`http://localhost:3000/api/profile/${user.id}`, formData);
+      const res = await axios.put(`http://3.88.179.56:3000/api/profile/${user.id}`, formData);
       
       // Update Global Context
       updateUser(res.data);

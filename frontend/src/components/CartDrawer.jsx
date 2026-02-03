@@ -41,7 +41,7 @@ function CartDrawer({ isOpen, onClose }) {
             }
         };
 
-        const res = await axios.post("http://localhost:3000/api/orders", orderDataPayload, config);
+        const res = await axios.post("http://3.88.179.56:3000/api/orders", orderDataPayload, config);
         
         const createdOrder = {
             _id: res.data._id || "NEW-" + Date.now(), 

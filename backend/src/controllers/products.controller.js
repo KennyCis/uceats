@@ -3,7 +3,7 @@ import Product from "../models/Product.model.js";
 // Helper function to get full image URL
 const getImageUrl = (req) => {
     if (!req.file) return null; // No file uploaded
-    // Returns: http://localhost:3000/uploads/filename.png
+    // Returns: http://3.88.179.56:3000/uploads/filename.png
     return `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
 };
 

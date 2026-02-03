@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
   const loginWithGoogle = async (googleToken) => {
     try {
         // Send the Google token to our Backend
-        const res = await axios.post("http://localhost:3000/api/google", { 
+        const res = await axios.post("http://3.88.179.56:3000/api/google", { 
             token: googleToken 
         });
         

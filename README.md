@@ -92,8 +92,8 @@ Prerequisites: Docker Desktop and Git.
 
 4.  **Access Points:**
     * **Application:** http://localhost:5173
-    * **API Documentation:** http://localhost:3000/api-docs
-    * **Backend Health Check:** http://localhost:3000
+    * **API Documentation:** http://3.88.179.56:3000/api-docs
+    * **Backend Health Check:** http://3.88.179.56:3000
 
 ---
 
@@ -210,8 +210,8 @@ Prerrequisitos: Docker Desktop y Git.
 
 4.  **Puntos de Acceso:**
     * **Aplicación:** http://localhost:5173
-    * **Documentación API:** http://localhost:3000/api-docs
-    * **Backend Health Check:** http://localhost:3000
+    * **Documentación API:** http://3.88.179.56:3000/api-docs
+    * **Backend Health Check:** http://3.88.179.56:3000
 
 ---
 

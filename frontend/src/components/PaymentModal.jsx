@@ -23,7 +23,7 @@ const PaymentModal = ({ isOpen, onClose, total, onSuccess }) => {
             }
         };
 
-        axios.post("http://localhost:3000/api/payments/create-payment-intent", { 
+        axios.post("http://3.88.179.56:3000/api/payments/create-payment-intent", { 
             total: total 
         }, config) // Pasamos la configuración aquí
         .then((res) => setClientSecret(res.data.clientSecret))

@@ -16,7 +16,7 @@ import CartBubble from "../components/CartBubble";
 import CartDrawer from "../components/CartDrawer";
 
 // Initialize Socket connection
-const socket = io("http://localhost:3000");
+const socket = io("http://3.88.179.56:3000");
 
 function HomePage() {
   const { addToCart } = useCart();
@@ -44,7 +44,7 @@ function HomePage() {
   const fetchProducts = async () => {
     setLoading(true); 
     try {
-      const response = await axios.get("http://localhost:3000/api/products");
+      const response = await axios.get("http://3.88.179.56:3000/api/products");
       
       setTimeout(() => {
           setProducts(response.data);
@@ -91,7 +91,7 @@ function HomePage() {
         const config = {
             headers: { Authorization: `Bearer ${user.token}` }
         };
-        await axios.delete(`http://localhost:3000/api/products/${id}`, config);
+        await axios.delete(`http://3.88.179.56:3000/api/products/${id}`, config);
         // Socket updates the UI automatically
     } catch (error) {
        console.error("Error deleting product:", error);

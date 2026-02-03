@@ -42,7 +42,7 @@ function AdminDashboard() {
         headers: { Authorization: `Bearer ${user.token}` }
       };
 
-      const res = await axios.get(`http://localhost:3000/api/stats/summary?range=${timeRange}`, config);
+      const res = await axios.get(`http://3.88.179.56:3000/api/stats/summary?range=${timeRange}`, config);
       setStats(res.data);
     } catch (error) {
       console.error("Error loading stats:", error);

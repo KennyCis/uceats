@@ -27,7 +27,7 @@ services:
     container_name: uceats-mongo
     restart: always
     ports:
-      - "27017:27017"  # <--- ESTO ES VITAL: Abre la puerta al Windows
+      - "27017:27017" 
     volumes:
       - mongo-data:/data/db
 
