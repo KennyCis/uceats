@@ -24,29 +24,35 @@ const AuthSkeleton = () => (
 );
 
 function Login() {
-  // IMPLEMENT ZOD RESOLVER
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(loginSchema),
   });
 
   const navigate = useNavigate();
   const { signin, loginWithGoogle } = useAuth();
+  
   const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState("");
 
   const onLogin = handleSubmit(async (data) => {
     setIsLoading(true);
+    setLoginError(""); // Clear previous errors
+    
     try {
       const res = await loginRequest(data); 
       signin(res.data); 
       navigate("/home"); 
     } catch (error) {
       setIsLoading(false);
-      alert(error.response?.data?.message || "Invalid credentials");
+      // Set error message to state instead of alert
+      setLoginError(error.response?.data?.message || "Invalid credentials");
     }
   });
 
   const handleGoogleSuccess = async (credentialResponse) => {
     setIsLoading(true);
+    setLoginError("");
+
     try {
         if (credentialResponse.credential) {
             await loginWithGoogle(credentialResponse.credential);
@@ -54,8 +60,20 @@ function Login() {
         }
     } catch (error) {
         setIsLoading(false);
-        alert("Google Login Failed. Please try again.");
+        setLoginError("Google Login Failed. Please try again.");
     }
+  };
+
+  // Error Message Style
+  const errorStyle = {
+    backgroundColor: "#FFF5F5",
+    color: "#E53E3E",
+    border: "1px solid #FEB2B2",
+    padding: "10px",
+    borderRadius: "5px",
+    fontSize: "13px",
+    textAlign: "center",
+    marginBottom: "10px"
   };
 
   if (isLoading) return <AuthSkeleton />;
@@ -67,7 +85,7 @@ function Login() {
         <div style={{ display: "flex", justifyContent: "center", marginBottom: "5px" }}>
             <GoogleLogin
                 onSuccess={handleGoogleSuccess}
-                onError={() => console.log("Google Login Failed")}
+                onError={() => setLoginError("Google Login Failed")}
                 useOneTap
                 theme="outline"
                 shape="pill"
@@ -83,6 +101,13 @@ function Login() {
             <span style={{ padding: "0 8px" }}>or email</span>
             <div style={{ flex: 1, height: "1px", backgroundColor: "#E2E8F0" }}></div>
         </div>
+
+        {/* ERROR MESSAGE DISPLAY */}
+        {loginError && (
+            <div style={errorStyle}>
+                {loginError}
+            </div>
+        )}
 
         <form onSubmit={onLogin} style={{ width: "100%", display: "flex", flexDirection: "column", gap: "8px" }}>
         
@@ -104,7 +129,7 @@ function Login() {
             </select>
         </div>
 
-        {/* EMAIL (CLEANER NOW, NO RULES PROP) */}
+        {/* EMAIL */}
         <div style={{ marginBottom: "-5px" }}>
             <InputGroup
                 label="Email"

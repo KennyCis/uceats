@@ -6,7 +6,7 @@ import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import { FiClock, FiCheckCircle, FiPackage, FiArchive } from "react-icons/fi";
 
-const socket = io("http://3.88.179.56:3000");
+const socket = io("http://3.227.144.60:3000");
 
 function ClientOrdersPage() {
   const { user } = useAuth();
@@ -19,7 +19,7 @@ function ClientOrdersPage() {
       const config = {
         headers: { Authorization: `Bearer ${user.token}` }
       };
-      const response = await axios.get(`http://3.88.179.56:3000/api/orders/user/${user.id}`, config);
+      const response = await axios.get(`http://3.227.144.60:3000/api/orders/user/${user.id}`, config);
       setOrders(response.data);
     } catch (error) {
       console.error(error);

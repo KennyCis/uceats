@@ -6,7 +6,7 @@ import Sidebar from "../components/Sidebar";
 import { FiClock, FiCheckCircle, FiTrash2 } from "react-icons/fi"; 
 import { useAuth } from "../context/AuthContext";
 
-const socket = io("http://3.88.179.56:3000");
+const socket = io("http://3.227.144.60:3000");
 
 function OrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -20,7 +20,7 @@ function OrdersPage() {
       const config = {
         headers: { Authorization: `Bearer ${user.token}` }
       };
-      const response = await axios.get("http://3.88.179.56:3000/api/orders", config);
+      const response = await axios.get("http://3.227.144.60:3000/api/orders", config);
       setOrders(response.data);
     } catch (error) {
       console.error(error);
@@ -47,7 +47,7 @@ function OrdersPage() {
         const config = {
             headers: { Authorization: `Bearer ${user.token}` }
         };
-        await axios.patch(`http://3.88.179.56:3000/api/orders/${orderId}`, { status: newStatus }, config);
+        await axios.patch(`http://3.227.144.60:3000/api/orders/${orderId}`, { status: newStatus }, config);
         fetchOrders(); 
     } catch (error) {
         console.error(error);
@@ -63,7 +63,7 @@ function OrdersPage() {
           const config = {
             headers: { Authorization: `Bearer ${user.token}` }
           };
-          await axios.delete(`http://3.88.179.56:3000/api/orders/${orderId}`, config);        
+          await axios.delete(`http://3.227.144.60:3000/api/orders/${orderId}`, config);        
           setOrders(prev => prev.filter(o => o._id !== orderId));
       } catch (error) {
           console.error(error);

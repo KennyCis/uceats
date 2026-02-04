@@ -1,7 +1,7 @@
 import User from "../models/User.model.js";
 import bcrypt from "bcryptjs";
-import { createAccessToken } from "../libs/jwt.js"; // Import JWT generator
-import { OAuth2Client } from "google-auth-library"; // Import Google Client
+import { createAccessToken } from "../libs/jwt.js";
+import { OAuth2Client } from "google-auth-library";
 import { sendWelcomeEmail } from "../libs/mailer.js";
 import dotenv from "dotenv";
 
@@ -9,58 +9,60 @@ dotenv.config();
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// Helper to construct image URL
 const getImageUrl = (req) => {
     if (!req.file) return null;
     return `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
 };
 
-// --- REGISTER ---
 export const register = async (req, res) => {
-  const { name, email, password, role, birthdate, termsAccepted } = req.body;
+    const { name, email, password, role, birthdate, termsAccepted } = req.body;
 
-  try {
-    const userFound = await User.findOne({ email });
-    if (userFound) return res.status(400).json(["The email is already in use"]);
+    try {
+        const userFound = await User.findOne({ email });
+        if (userFound) return res.status(400).json(["The email is already in use"]);
 
-    const passwordHash = await bcrypt.hash(password, 10);
-    
-    let imageUrl = null;
-    if (req.file) {
-        imageUrl = getImageUrl(req);
+        const passwordHash = await bcrypt.hash(password, 10);
+        
+        let imageUrl = null;
+        if (req.file) {
+            imageUrl = getImageUrl(req);
+        }
+
+        const newUser = new User({
+            name,
+            email,
+            password: passwordHash,
+            role,
+            birthdate,
+            termsAccepted: termsAccepted === 'true',
+            image: imageUrl
+        });
+
+        const userSaved = await newUser.save();
+
+        const token = await createAccessToken({ id: userSaved._id });
+
+        res.cookie("token", token, {
+            sameSite: "lax",
+            secure: false,
+            httpOnly: false
+        });
+
+        res.json({
+            id: userSaved._id,
+            name: userSaved.name,
+            email: userSaved.email,
+            role: userSaved.role,
+            image: userSaved.image, 
+            createdAt: userSaved.createdAt,
+            token: token
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     }
-
-    const newUser = new User({
-      name,
-      email,
-      password: passwordHash,
-      role,
-      birthdate,
-      termsAccepted: termsAccepted === 'true', // FormData converts boolean to string
-      image: imageUrl // send photo
-    });
-
-    const userSaved = await newUser.save();
-
-    // GENERATE TOKEN (Important: Login immediately after register)
-    const token = await createAccessToken({ id: userSaved._id });
-
-    res.json({
-      id: userSaved._id,
-      name: userSaved.name,
-      email: userSaved.email,
-      role: userSaved.role,
-      image: userSaved.image, 
-      createdAt: userSaved.createdAt,
-      token: token // Send token to frontend
-    });
-
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
 };
 
-// --- LOGIN ---
 export const login = async (req, res) => {
     const { email, password, role } = req.body; 
 
@@ -68,7 +70,6 @@ export const login = async (req, res) => {
         const userFound = await User.findOne({ email });
         if (!userFound) return res.status(400).json({ message: "User not found" });
 
-        // Optional: strict role check
         if (role && userFound.role !== role) {
             return res.status(400).json({ message: `Role mismatch: User is ${userFound.role}, not ${role}` });
         }
@@ -76,8 +77,13 @@ export const login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, userFound.password);
         if (!isMatch) return res.status(400).json({ message: "Invalid password" });
 
-        // GENERATE TOKEN
         const token = await createAccessToken({ id: userFound._id });
+
+        res.cookie("token", token, {
+            sameSite: "lax",
+            secure: false,
+            httpOnly: false
+        });
 
         res.json({
             id: userFound._id,
@@ -86,7 +92,7 @@ export const login = async (req, res) => {
             role: userFound.role,
             birthdate: userFound.birthdate, 
             image: userFound.image,
-            token: token // Send token to frontend
+            token: token
         });
 
     } catch (error) {
@@ -94,7 +100,6 @@ export const login = async (req, res) => {
     }
 };
 
-// --- GOOGLE LOGIN (NEW) ---
 export const googleLogin = async (req, res) => {
     const { token } = req.body; 
 
@@ -128,6 +133,12 @@ export const googleLogin = async (req, res) => {
 
         const accessToken = await createAccessToken({ id: user._id });
 
+        res.cookie("token", accessToken, {
+            sameSite: "lax",
+            secure: false,
+            httpOnly: false
+        });
+
         res.json({
             id: user._id,
             name: user.name,
@@ -143,7 +154,6 @@ export const googleLogin = async (req, res) => {
     }
 };
 
-// --- UPDATE PROFILE ---
 export const updateProfile = async (req, res) => {
     try {
         const { id } = req.params;
@@ -155,7 +165,6 @@ export const updateProfile = async (req, res) => {
             updates.password = await bcrypt.hash(password, 10);
         }
 
-        // send photo
         if (req.file) {
             updates.image = getImageUrl(req);
         }

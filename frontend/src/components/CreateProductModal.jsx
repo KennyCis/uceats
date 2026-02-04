@@ -61,9 +61,9 @@ function CreateProductModal({ onClose, onSaved, productToEdit = null }) {
 
       // SEND POST or PUT
       if (productToEdit) {
-        await axios.put(`http://3.88.179.56:3000/api/products/${productToEdit._id}`, formData, config);
+        await axios.put(`http://3.227.144.60:3000/api/products/${productToEdit._id}`, formData, config);
       } else {
-        await axios.post("http://3.88.179.56:3000/api/products", formData, config);
+        await axios.post("http://3.227.144.60:3000/api/products", formData, config);
       }
       
       onClose(); 
