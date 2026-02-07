@@ -6,13 +6,13 @@ import Sidebar from "../components/Sidebar";
 import { FiClock, FiCheckCircle, FiTrash2 } from "react-icons/fi"; 
 import { useAuth } from "../context/AuthContext";
 
+
 const socket = io("http://3.227.144.60:3000");
 
 function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const { user } = useAuth();
 
-  // Fetch Orders with Token
   const fetchOrders = async () => {
     if (!user?.token) return;
 
@@ -23,7 +23,7 @@ function OrdersPage() {
       const response = await axios.get("http://3.227.144.60:3000/api/orders", config);
       setOrders(response.data);
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching orders:", error);
     }
   };
 
@@ -39,7 +39,6 @@ function OrdersPage() {
     };
   }, [user]);
 
-  // Update Status
   const handleStatusChange = async (orderId, newStatus) => {
     if (!user?.token) return;
 
@@ -54,9 +53,7 @@ function OrdersPage() {
     }
   };
 
-  // Delete WITHOUT Confirmation Alert
   const handleDelete = async (orderId) => {
-      // Removed window.confirm line to delete immediately
       if (!user?.token) return;
 
       try {

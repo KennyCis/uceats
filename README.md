@@ -61,7 +61,7 @@ The project utilizes a Jamstack approach with a microservices-oriented structure
 * Implementation of WebSocket events (`server:neworder`, `server:orderupdated`) to synchronize the Kitchen Dashboard with Client views instantly without polling.
 
 ### 5. API Documentation
-* Fully documented endpoints available at `/api-docs` using Swagger UI.
+* Fully documented endpoints available at `http://3.227.144.60:3000/api-docs` using Swagger UI.
 
 ---
 
@@ -179,7 +179,7 @@ El proyecto utiliza un enfoque Jamstack con una estructura orientada a microserv
 * Implementación de eventos WebSocket (`server:neworder`, `server:orderupdated`) para sincronizar el Panel de Cocina con las vistas del Cliente instantáneamente sin necesidad de recargar (polling).
 
 ### 5. Documentación de API
-* Endpoints totalmente documentados y accesibles en `/api-docs` utilizando Swagger UI.
+* Endpoints totalmente documentados y accesibles en `http://3.227.144.60:3000/api-docs` utilizando Swagger UI.
 
 ---
 
