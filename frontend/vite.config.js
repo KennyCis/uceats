@@ -6,7 +6,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: true,      
-    port: 5173,      
+    port: 5173,
+    allowedHosts: [
+      "kenny-cisneros.programacionwebuce.net", 
+      "3.227.144.60"                        
+    ],      
     watch: {
       usePolling: true, 
     },
